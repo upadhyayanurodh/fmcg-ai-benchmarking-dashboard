@@ -21,6 +21,9 @@ venv/
 # Secrets (none in this project — all data is public and pre-embedded)
 .env
 .env.local
+.env.*.local
+*_credentials.json
+service-account*.json
 *.pem
 *.key
 

@@ -77,28 +77,6 @@ Scroll through all four panels top to bottom. Start with Viz 1 to see the overal
 
 > **Note:** The dashboard uses FMCG-flavoured anonymised labels (FMCG Leader, FMCG Challenger 1/2, Subject FMCG Co.) in this public version.
 
-## Demo
-
-### Viz 1 — State of AI Scorecard
-Ranked leaderboard of all four FMCG companies by processes operating at AI Application level across 93 mapped processes.
-
-![Viz 1 — State of AI Scorecard](docs/viz1-state-of-ai-scorecard.png)
-
-### Viz 2 — Use of AI Scorecard
-Ranked leaderboard by breadth of AI utilisation — activities operating at AI Assisted level across 465 mapped activities.
-
-![Viz 2 — Use of AI Scorecard](docs/viz2-use-of-ai-scorecard.png)
-
-### Viz 3 — Business Function × State of AI
-Spectrum grid showing where each of the 10 business functions sits on the State of AI spectrum, across all four companies.
-
-![Viz 3 — Business Function Spectrum](docs/viz3-bf-spectrum.png)
-
-### Viz 4 — Process × Use of AI
-Process-count spectrum grid with fixed-height aligned rows — enabling direct cross-company comparison at business function level.
-
-![Viz 4 — Process Spectrum](docs/viz4-process-spectrum.png)
-
 ## Tech Stack
 
 | Layer | Technology |
@@ -225,6 +203,28 @@ The `BFS` array (business function names) appears twice — once for Viz 3 and o
 Drop SVG files into `Build/assets/logos/` and update the `logo:` path in each data block. See the existing files for format reference (rectangle, solid background, white text, `viewBox="0 0 140 40"`).
 
 > **Note:** The tier classification criteria (what makes a process "AI Application" vs "AI Adoption" etc.) are specific to the benchmarking methodology used in this project and are not included in this repo. You will need to define your own scoring rubric before populating the data arrays.
+
+## Demo
+
+### Viz 1 — State of AI Scorecard
+Ranked leaderboard of all four FMCG companies by processes operating at AI Application level across 93 mapped processes.
+
+![Viz 1 — State of AI Scorecard](docs/viz1-state-of-ai-scorecard.png)
+
+### Viz 2 — Use of AI Scorecard
+Ranked leaderboard by breadth of AI utilisation — activities operating at AI Assisted level across 465 mapped activities.
+
+![Viz 2 — Use of AI Scorecard](docs/viz2-use-of-ai-scorecard.png)
+
+### Viz 3 — Business Function × State of AI
+Spectrum grid showing where each of the 10 business functions sits on the State of AI spectrum, across all four companies.
+
+![Viz 3 — Business Function Spectrum](docs/viz3-bf-spectrum.png)
+
+### Viz 4 — Process × Use of AI
+Process-count spectrum grid with fixed-height aligned rows — enabling direct cross-company comparison at business function level.
+
+![Viz 4 — Process Spectrum](docs/viz4-process-spectrum.png)
 
 ## Key Decisions & Tradeoffs
 
