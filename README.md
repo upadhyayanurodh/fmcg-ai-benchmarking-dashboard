@@ -161,6 +161,71 @@ aws cloudfront create-invalidation \
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the full AWS setup walkthrough.
 
+## Adapting to Your Data
+
+The dashboard has four independent data blocks inside `Build/state_of_ai_scorecard.html`. Edit them to swap in your own companies and numbers — no build step required.
+
+### Step 1 — Set your totals
+
+```js
+const TOTAL_PROCESSES = 93;   // line ~595 — all tier counts per company must sum to this
+const TOTAL_ACTIVITIES = 465; // line ~681 — all activity counts per company must sum to this
+```
+
+If these constants don't match the actual sum of your tier data, bar percentages will silently add to the wrong number.
+
+### Step 2 — Viz 1 data (State of AI Scorecard)
+
+```js
+const companies = [
+  { name: "Company A", logo: "assets/logos/a.svg", isSubject: false,
+    aiNative: 0, aiApp: 27, aiAdop: 62, withoutAI: 4 }, // must sum to TOTAL_PROCESSES
+  { name: "Your Company", logo: "assets/logos/subject.svg", isSubject: true,
+    aiNative: 0, aiApp: 6, aiAdop: 79, withoutAI: 8 },
+];
+```
+
+Set `isSubject: true` on the company to highlight in orange. Pre-sort the array descending by `aiApp` — rank is derived from array order.
+
+### Step 3 — Viz 2 data (Use of AI Scorecard)
+
+```js
+{ name: "Company A", logo: "...", isSubject: false,
+  autoAI: 0, aiAssist: 145, aiEnable: 44, noAI: 276 } // must sum to TOTAL_ACTIVITIES
+```
+
+Pre-sort descending by `aiAssist`.
+
+### Step 4 — Viz 3 data (Business Function × State of AI)
+
+```js
+{ bfStates: [2, 1, 2, 2, 1, 2, 2, 2, 2, 4] } // one integer per BF
+```
+
+State IDs: `1` = AI Application · `2` = AI Adoption · `3` = AI Nativeness · `4` = Without AI. Array index maps to the `BFS` list order.
+
+### Step 5 — Viz 4 data (Process × Use of AI)
+
+```js
+bfCounts: [
+  [0, 5, 5, 0],  // BF1 → [Autonomous AI, AI Enabled, AI Assisted, No AI]
+  [0, 0, 9, 0],  // BF2
+  ...
+]
+```
+
+**Critical constraint:** each BF must have the same total process count across every company column (e.g. if BF1 has 10 processes, it must be 10 for all companies). Unequal counts cause Viz 4's fixed-height rows to misalign across columns — no error is thrown.
+
+### Step 6 — Update the BF list if your taxonomy differs
+
+The `BFS` array (business function names) appears twice — once for Viz 3 and once for Viz 4. Update both if you use different functions or a different number of them.
+
+### Step 7 — Add your logos
+
+Drop SVG files into `Build/assets/logos/` and update the `logo:` path in each data block. See the existing files for format reference (rectangle, solid background, white text, `viewBox="0 0 140 40"`).
+
+> **Note:** The tier classification criteria (what makes a process "AI Application" vs "AI Adoption" etc.) are specific to the benchmarking methodology used in this project and are not included in this repo. You will need to define your own scoring rubric before populating the data arrays.
+
 ## Key Decisions & Tradeoffs
 
 **Single HTML file over a multi-file SPA** — All JS, CSS, and data live in one `state_of_ai_scorecard.html`. The upside: zero build tooling, instant deployment, works from a file:// URL. The downside: the file grows large as data is embedded (~39KB). For a data-fixed dashboard with no user input, this is the right call — there is nothing to build.

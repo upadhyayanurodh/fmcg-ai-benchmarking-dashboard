@@ -129,8 +129,42 @@ aws s3 website s3://YOUR-BUCKET-NAME \
 aws s3 sync Build s3://YOUR-BUCKET-NAME \
   --cache-control "no-cache, no-store, must-revalidate"
 
-# 6. Create CloudFront distribution (use S3 website endpoint as custom origin)
-# Use DomainName: YOUR-BUCKET.s3-website.REGION.amazonaws.com with http-only OriginProtocolPolicy
+# 6. Create CloudFront distribution
+# Write the distribution config to a temp file, then create
+cat > /tmp/cf-dist.json << 'EOF'
+{
+  "CallerReference": "fmcg-dashboard-1",
+  "Comment": "FMCG AI Benchmarking Dashboard",
+  "Enabled": true,
+  "DefaultRootObject": "state_of_ai_scorecard.html",
+  "Origins": {
+    "Quantity": 1,
+    "Items": [{
+      "Id": "s3-website",
+      "DomainName": "YOUR-BUCKET.s3-website.ap-south-1.amazonaws.com",
+      "CustomOriginConfig": {
+        "HTTPPort": 80,
+        "HTTPSPort": 443,
+        "OriginProtocolPolicy": "http-only"
+      }
+    }]
+  },
+  "DefaultCacheBehavior": {
+    "TargetOriginId": "s3-website",
+    "ViewerProtocolPolicy": "redirect-to-https",
+    "AllowedMethods": {
+      "Quantity": 2,
+      "Items": ["GET", "HEAD"],
+      "CachedMethods": { "Quantity": 2, "Items": ["GET", "HEAD"] }
+    },
+    "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+    "Compress": true
+  }
+}
+EOF
+aws cloudfront create-distribution --distribution-config file:///tmp/cf-dist.json
+# Note the "DomainName" in the output (e.g. d1234abc.cloudfront.net) — that is your live URL.
+# Status will show "InProgress" for ~15 minutes; the domain is usable immediately.
 
 # 7. Invalidate on update
 aws cloudfront create-invalidation \
