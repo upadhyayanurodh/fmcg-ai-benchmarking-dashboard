@@ -77,6 +77,28 @@ Scroll through all four panels top to bottom. Start with Viz 1 to see the overal
 
 > **Note:** The dashboard uses FMCG-flavoured anonymised labels (FMCG Leader, FMCG Challenger 1/2, Subject FMCG Co.) in this public version.
 
+## Demo
+
+### Viz 1 — State of AI Scorecard
+Ranked leaderboard of all four FMCG companies by processes operating at AI Application level across 93 mapped processes.
+
+![Viz 1 — State of AI Scorecard](docs/viz1-state-of-ai-scorecard.png)
+
+### Viz 2 — Use of AI Scorecard
+Ranked leaderboard by breadth of AI utilisation — activities operating at AI Assisted level across 465 mapped activities.
+
+![Viz 2 — Use of AI Scorecard](docs/viz2-use-of-ai-scorecard.png)
+
+### Viz 3 — Business Function × State of AI
+Spectrum grid showing where each of the 10 business functions sits on the State of AI spectrum, across all four companies.
+
+![Viz 3 — Business Function Spectrum](docs/viz3-bf-spectrum.png)
+
+### Viz 4 — Process × Use of AI
+Process-count spectrum grid with fixed-height aligned rows — enabling direct cross-company comparison at business function level.
+
+![Viz 4 — Process Spectrum](docs/viz4-process-spectrum.png)
+
 ## Tech Stack
 
 | Layer | Technology |
