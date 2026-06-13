@@ -62,13 +62,15 @@ flowchart LR
 - **Type**: Rank leaderboard (horizontal stacked bars)
 - **Data**: Activity counts per Use of AI tier, per company (total: 465 activities)
 - **Ranked by**: Activities at AI Assisted level
-- **Tiers**: Autonomous AI (purple) → AI Enabled (blue) → AI Assisted (green) → No AI (red)
+- **Tiers**: Autonomous AI (purple) → AI Assisted (green) → AI Enabled (blue) → No AI (red)
+- **Note**: Bar segments render AI Assisted before AI Enabled (most-volume tier leads); semantic hierarchy is Autonomous AI > AI Enabled > AI Assisted > No AI
 
 ### Viz 3 — Business Function × State of AI
 - **Type**: Spectrum grid (5-column: label + 4 company columns)
 - **Data**: State of AI assignment per business function per company
 - **Rows**: AI Nativeness ⭐ → AI Application → AI Adoption → Without AI
 - **Cells**: BF name chips coloured by tier
+- **Data note**: In the current dataset all 10 business functions for all 4 companies sit at AI Adoption level; the AI Nativeness, AI Application, and Without AI rows are intentionally empty (shown as dashes)
 
 ### Viz 4 — Process × Use of AI
 - **Type**: Spectrum grid with fixed-height aligned rows
