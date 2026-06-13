@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>State of AI — Scorecard | FMCG AI Strategy</title>
+<style>
+  /* ── Reset & Base ───────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* Light theme palette */
+    --bg:             #F4F6FA;
+    --bg-card:        #FFFFFF;
+    --bg-card-hover:  #FAFBFD;
+    --border:         #E1E6EF;
+    --border-strong:  #C9D1DF;
+    --shadow-sm:      0 1px 3px rgba(16, 30, 66, 0.06),
+                      0 1px 2px rgba(16, 30, 66, 0.04);
+    --shadow-md:      0 4px 12px rgba(16, 30, 66, 0.08),
+                      0 2px 4px rgba(16, 30, 66, 0.04);
+
+    /* Rank accents */
+    --gold:       #D4A017;
+    --silver:     #8B98A8;
+    --bronze:     #B8733B;
+    --slate:      #5C6B82;
+
+    /* Metric colours — ordered from most to least advanced */
+    --ai-native:  #7B3FCC;   /* AI Nativeness   — royal purple (most advanced) */
+    --ai-app:     #2E7FD4;   /* AI Application  — steel blue */
+    --ai-adop:    #1A9968;   /* AI Adoption     — forest green */
+    --no-ai:      #D13B4B;   /* Without AI      — crimson (least advanced) */
+    --hul-accent: #E85D20;   /* HUL highlight   — orange */
+
+    /* Text */
+    --text-primary:   #0F1A2E;
+    --text-secondary: #4A5B78;
+    --text-muted:     #8B98A8;
+
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font);
+    min-height: 100vh;
+    padding: 24px 24px 48px;
+  }
+
+  /* ── Page Header ────────────────────────────────────────────────── */
+  .page-header {
+    max-width: 920px;
+    margin: 0 auto 18px;
+  }
+  .project-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .page-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.6px;
+    margin-bottom: 8px;
+  }
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 700px;
+  }
+  .page-subtitle strong {
+    color: var(--ai-app);
+    font-weight: 700;
+  }
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin-top: 14px;
+  }
+
+  /* ── Metric Definition Strip ────────────────────────────────────── */
+  .metric-strip {
+    max-width: 920px;
+    margin: 0 auto 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding-top: 14px;
+  }
+  .metric-pill {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 16px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    box-shadow: var(--shadow-sm);
+  }
+  .pill-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+  .pill-text { min-width: 0; }
+  .pill-label { color: var(--text-secondary); }
+  .pill-desc  { color: var(--text-primary); font-weight: 600; }
+
+  /* ── Section Label ──────────────────────────────────────────────── */
+  .section-label {
+    max-width: 920px;
+    margin: 0 auto 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Leaderboard ────────────────────────────────────────────────── */
+  .leaderboard {
+    max-width: 920px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* ── Rank Card ──────────────────────────────────────────────────── */
+  .rank-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 28px 22px 24px;
+    display: grid;
+    grid-template-columns: 60px 120px 1fr auto;
+    align-items: center;
+    gap: 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .rank-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  /* HUL special highlight */
+  .rank-card.is-hul {
+    border-color: rgba(232, 93, 32, 0.35);
+    background: linear-gradient(0deg, rgba(232, 93, 32, 0.035), rgba(232, 93, 32, 0.035)), var(--bg-card);
+  }
+  /* Subject Company eyebrow label — sits above company name */
+  .subject-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    color: var(--hul-accent);
+    background: rgba(232, 93, 32, 0.1);
+    padding: 3px 9px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  /* Left accent strip by rank */
+  .rank-card::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    border-radius: 14px 0 0 14px;
+  }
+  .rank-card.rank-1::after { background: var(--gold); }
+  .rank-card.rank-2::after { background: var(--silver); }
+  .rank-card.rank-3::after { background: var(--bronze); }
+  .rank-card.rank-4::after { background: var(--slate); }
+
+  /* ── Rank Badge ─────────────────────────────────────────────────── */
+  .rank-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding-left: 6px;
+  }
+  .rank-number {
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2.5px;
+  }
+  .rank-card.rank-1 .rank-number { color: var(--gold); }
+  .rank-card.rank-2 .rank-number { color: var(--silver); }
+  .rank-card.rank-3 .rank-number { color: var(--bronze); }
+  .rank-card.rank-4 .rank-number { color: var(--slate); }
+  .rank-label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ── Logo Column ────────────────────────────────────────────────── */
+  .logo-wrap {
+    width: 120px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    background: #FAFBFD;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .logo-wrap img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  /* ── Company Info + Bar ─────────────────────────────────────────── */
+  .company-info { min-width: 0; }
+  .company-name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .company-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    color: var(--text-primary);
+  }
+  .rank-card.is-hul .company-name { color: var(--hul-accent); }
+  .medal {
+    font-size: 22px;
+    line-height: 1;
+    margin-top: 4px;
+  }
+
+  /* Stacked bar */
+  .bar-track {
+    height: 52px;
+    background: #EEF1F6;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    margin-bottom: 0;
+  }
+  .bar-seg {
+    height: 100%;
+    transition: width 0.8s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .seg-label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.93);
+    white-space: nowrap;
+    padding: 0 3px;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .bar-seg.ai-native { background: var(--ai-native); }
+  .bar-seg.ai-app    { background: var(--ai-app); }
+  .bar-seg.ai-adop   { background: var(--ai-adop); }
+  .bar-seg.no-ai     { background: var(--no-ai); }
+
+  .bar-labels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 24px;
+  }
+  .bar-label-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+  }
+  .bar-label-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .bar-label-val { font-weight: 700; color: var(--text-primary); }
+
+  /* ── Stats Column ───────────────────────────────────────────────── */
+  .stats-col {
+    text-align: right;
+    flex-shrink: 0;
+    min-width: 110px;
+    padding-left: 10px;
+  }
+  .stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .stat-main {
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .rank-card.rank-1 .stat-main { color: var(--gold); }
+  .rank-card.rank-2 .stat-main { color: var(--silver); }
+  .rank-card.rank-3 .stat-main { color: var(--bronze); }
+  .rank-card.rank-4 .stat-main { color: var(--slate); }
+  .rank-card.is-hul .stat-main { color: var(--hul-accent); }
+  .stat-pct {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ai-app);
+  }
+
+  /* ── Section Separator ──────────────────────────────────────────── */
+  .section-sep {
+    max-width: 920px;
+    margin: 40px auto;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  }
+
+  /* ── UseOfAI-specific bar segments ─────────────────────────────── */
+  .bar-seg.auto-ai { background: var(--ai-native); }
+  .bar-seg.ai-asst { background: var(--ai-adop); }
+  .bar-seg.ai-enbl { background: var(--ai-app); }
+  .bar-seg.no-uai  { background: var(--no-ai); }
+
+  /* ── Footer Strip ───────────────────────────────────────────────── */
+  .footer-strip {
+    max-width: 920px;
+    margin: 28px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .footer-note {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* ── Spectrum Grid (BF-level State of AI) ───────────────────────── */
+  .spectrum-grid {
+    max-width: 920px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 150px 1fr 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* Top-left axis header */
+  .spec-axis-head {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 4px 10px;
+    gap: 2px;
+  }
+  .spec-axis-txt {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* Company column header cells */
+  .spec-col-head {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    box-shadow: var(--shadow-sm);
+  }
+  .spec-col-head img { height: 28px; max-width: 90%; object-fit: contain; }
+  .spec-col-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+  /* HUL subject company column header */
+  .spec-col-head.is-hul {
+    border-color: rgba(232, 93, 32, 0.40);
+    background: linear-gradient(0deg, rgba(232,93,32,.04), rgba(232,93,32,.04)), var(--bg-card);
+  }
+  .spec-col-head.is-hul .spec-col-name { color: var(--hul-accent); }
+  .spec-subject-badge {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--hul-accent);
+    background: rgba(232,93,32,.10);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  /* Tier label cells */
+  .spec-tier-label {
+    border-radius: 10px;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+  }
+  .spec-tier-label.t-native { background: rgba(123,63,204,.09); border: 1px solid rgba(123,63,204,.22); }
+  .spec-tier-label.t-app    { background: rgba(46,127,212,.09);  border: 1px solid rgba(46,127,212,.22); }
+  .spec-tier-label.t-adop   { background: rgba(26,153,104,.09);  border: 1px solid rgba(26,153,104,.22); }
+  .spec-tier-label.t-no-ai  { background: rgba(209,59,75,.09);   border: 1px solid rgba(209,59,75,.22); }
+
+  .spec-tier-name { font-size: 11.5px; font-weight: 700; }
+  .t-native .spec-tier-name { color: var(--ai-native); }
+  .t-app    .spec-tier-name { color: var(--ai-app); }
+  .t-adop   .spec-tier-name { color: var(--ai-adop); }
+  .t-no-ai  .spec-tier-name { color: var(--no-ai); }
+
+  .spec-tier-meta {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* Tier data cells */
+  .spec-tier-cell {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 68px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-content: flex-start;
+    box-shadow: var(--shadow-sm);
+  }
+  .spec-tier-cell.empty {
+    align-items: center;
+    justify-content: center;
+    opacity: 0.42;
+  }
+  .spec-tier-cell.hul-cell {
+    border-color: rgba(232, 93, 32, 0.35);
+    background: linear-gradient(0deg, rgba(232,93,32,.03), rgba(232,93,32,.03)), var(--bg-card);
+  }
+  .spec-empty-dash { font-size: 22px; color: var(--text-muted); line-height: 1; }
+
+  /* BF chips */
+  .bf-chip {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 7px;
+    border-radius: 4px;
+    line-height: 1.5;
+  }
+  .bf-chip.chip-native { background: rgba(123,63,204,.12); color: #5e25a8; border: 1px solid rgba(123,63,204,.25); }
+  .bf-chip.chip-app    { background: rgba(46,127,212,.12);  color: #1d5fa8; border: 1px solid rgba(46,127,212,.25); }
+  .bf-chip.chip-adop   { background: rgba(26,153,104,.12);  color: #12755a; border: 1px solid rgba(26,153,104,.25); }
+  .bf-chip.chip-no-ai  { background: rgba(209,59,75,.12);   color: #a82030; border: 1px solid rgba(209,59,75,.25); }
+
+  /* ── Viz 4: aligned BF rows inside tier cells ───────────────────── */
+  .spec-tier-cell.proc-aligned {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0;
+    padding: 6px 10px;
+    align-content: unset;
+  }
+  .spec-bf-row {
+    height: 30px;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .spec-bf-row .bf-chip {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  .spec-bf-gap {
+    height: 30px;
+    min-height: 30px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding-left: 4px;
+    font-size: 13px;
+    color: var(--border-strong);
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Page Header ─────────────────────────────────────────────────── -->
+<div class="page-header">
+  <div class="project-label">FMCG AI Strategy Benchmarking — Dashboard</div>
+  <h1 class="page-title">State of AI Scorecard</h1>
+  <p class="page-subtitle">
+    Ranking FMCG peers by depth of AI integration — measured by the number of business
+    processes operating at <strong>AI Application</strong> level across 93 mapped processes.
+  </p>
+  <div class="divider"></div>
+</div>
+
+<!-- ── Section Label ────────────────────────────────────────────────── -->
+<div class="section-label">Leaderboard · Ranked by processes in AI Application state</div>
+
+<!-- ── Leaderboard ──────────────────────────────────────────────────── -->
+<div class="leaderboard" id="leaderboard"></div>
+
+<!-- ── Footer ──────────────────────────────────────────────────────── -->
+<div class="footer-strip">
+  <div class="legend">
+    <div class="legend-item">
+      <span class="legend-dot" style="background:var(--ai-native)"></span>AI Nativeness
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot" style="background:var(--ai-app)"></span>AI Application
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot" style="background:var(--ai-adop)"></span>AI Adoption
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot" style="background:var(--no-ai)"></span>Without AI
+    </div>
+  </div>
+  <div class="footer-note">Based on 93 mapped business processes per company · Logos © respective brand owners</div>
+</div>
+
+<!-- ── Data + Render ────────────────────────────────────────────────── -->
+<script>
+const TOTAL_PROCESSES = 93;
+
+const companies = [
+  { name: "FMCG Leader",       logo: "assets/logos/leader.svg",     isHUL: false, aiNative: 0, aiApp: 27, aiAdop: 62, withoutAI: 4 },
+  { name: "FMCG Challenger 1", logo: "assets/logos/challenger1.svg", isHUL: false, aiNative: 0, aiApp: 13, aiAdop: 73, withoutAI: 7 },
+  { name: "FMCG Challenger 2", logo: "assets/logos/challenger2.svg", isHUL: false, aiNative: 0, aiApp: 9,  aiAdop: 78, withoutAI: 6 },
+  { name: "Subject FMCG Co.",       logo: "assets/logos/subject.svg",    isHUL: true,  aiNative: 0, aiApp: 6,  aiAdop: 79, withoutAI: 8 },
+];
+
+// Assign ranks (competition ranking — ties share rank)
+let rank = 1;
+companies.forEach((co, i) => {
+  if (i > 0 && co.aiApp === companies[i - 1].aiApp) {
+    co.rank = companies[i - 1].rank;
+  } else {
+    co.rank = rank;
+  }
+  rank = i + 2;
+});
+
+const MEDALS = { 1: '🥇', 2: '🥈', 3: '🥉', 4: '' };
+
+const lb = document.getElementById('leaderboard');
+companies.forEach(co => {
+  const nativePct = Math.round(co.aiNative  / TOTAL_PROCESSES * 100);
+  const appPct    = Math.round(co.aiApp     / TOTAL_PROCESSES * 100);
+  const adopPct   = Math.round(co.aiAdop    / TOTAL_PROCESSES * 100);
+  const noaiPct   = Math.round(co.withoutAI / TOTAL_PROCESSES * 100);
+
+  const card = document.createElement('div');
+  card.className = `rank-card rank-${co.rank}${co.isHUL ? ' is-hul' : ''}`;
+  card.innerHTML = `
+    <div class="rank-badge">
+      <div class="rank-number">${co.rank}</div>
+      <div class="rank-label">RANK</div>
+      ${MEDALS[co.rank] ? `<span class="medal">${MEDALS[co.rank]}</span>` : ''}
+    </div>
+
+    <div class="logo-wrap">
+      <img src="${co.logo}" alt="${co.name} logo" />
+    </div>
+
+    <div class="company-info">
+      <div class="bar-track">
+        <div class="bar-seg ai-native" style="width:${nativePct}%">${nativePct>=4?'<span class="seg-label">'+nativePct+'%</span>':''}</div>
+        <div class="bar-seg ai-app"    style="width:${appPct}%">${appPct>=4?'<span class="seg-label">'+appPct+'%</span>':''}</div>
+        <div class="bar-seg ai-adop"   style="width:${adopPct}%">${adopPct>=4?'<span class="seg-label">'+adopPct+'%</span>':''}</div>
+        <div class="bar-seg no-ai"     style="width:${noaiPct}%">${noaiPct>=4?'<span class="seg-label">'+noaiPct+'%</span>':''}</div>
+      </div>
+    </div>
+
+    <div class="stats-col">
+      <div class="stat-main">${co.aiApp}</div>
+    </div>
+  `;
+  lb.appendChild(card);
+});
+
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!--   USE OF AI SCORECARD                                             -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+
+<!-- ── Section Separator ─────────────────────────────────────────── -->
+<div class="section-sep"></div>
+
+<!-- ── UseOfAI Page Header ───────────────────────────────────────── -->
+<div class="page-header">
+  <h2 class="page-title">Use of AI Scorecard</h2>
+  <p class="page-subtitle">
+    Ranking FMCG peers by breadth of AI utilisation — measured by the number of individual
+    activities operating at <strong>AI Assisted</strong> level across 465 mapped activities.
+  </p>
+  <div class="divider"></div>
+</div>
+
+<!-- ── UseOfAI Section Label ─────────────────────────────────────── -->
+<div class="section-label">Leaderboard · Ranked by AI Assisted activities</div>
+
+<!-- ── UseOfAI Leaderboard ───────────────────────────────────────── -->
+<div class="leaderboard" id="leaderboard-uai"></div>
+
+<script>
+// ── UseOfAI Scorecard render (placed after leaderboard-uai exists in DOM) ──
+(function () {
+  const TOTAL_ACTIVITIES = 465;
+  const MEDALS = { 1: '\uD83E\uDD47', 2: '\uD83E\uDD48', 3: '\uD83E\uDD49', 4: '' };
+
+  const uaiCompanies = [
+    { name: "FMCG Challenger 2",       logo: "assets/logos/challenger2.svg", isHUL: false, autoAI: 0, aiAssist: 145, aiEnable: 44, noAI: 276 },
+    { name: "Subject FMCG Co.",               logo: "assets/logos/subject.svg",    isHUL: true,  autoAI: 0, aiAssist: 143, aiEnable: 25, noAI: 297 },
+    { name: "FMCG Challenger 1", logo: "assets/logos/challenger1.svg", isHUL: false, autoAI: 0, aiAssist: 142, aiEnable: 43, noAI: 280 },
+    { name: "FMCG Leader",          logo: "assets/logos/leader.svg",     isHUL: false, autoAI: 0, aiAssist: 126, aiEnable: 99, noAI: 240 },
+  ];
+
+  // Assign ranks (competition ranking — ties share rank)
+  let uaiRank = 1;
+  uaiCompanies.forEach(function (co, i) {
+    if (i > 0 && co.aiAssist === uaiCompanies[i - 1].aiAssist) {
+      co.rank = uaiCompanies[i - 1].rank;
+    } else {
+      co.rank = uaiRank;
+    }
+    uaiRank = i + 2;
+  });
+
+  const lbUai = document.getElementById('leaderboard-uai');
+  uaiCompanies.forEach(function (co) {
+    const autoPct = Math.round(co.autoAI   / TOTAL_ACTIVITIES * 100);
+    const asstPct = Math.round(co.aiAssist / TOTAL_ACTIVITIES * 100);
+    const enblPct = Math.round(co.aiEnable / TOTAL_ACTIVITIES * 100);
+    const noaiPct = Math.round(co.noAI     / TOTAL_ACTIVITIES * 100);
+
+    const card = document.createElement('div');
+    card.className = 'rank-card rank-' + co.rank + (co.isHUL ? ' is-hul' : '');
+    card.innerHTML =
+      '<div class="rank-badge">' +
+        '<div class="rank-number">' + co.rank + '</div>' +
+        '<div class="rank-label">RANK</div>' +
+        (MEDALS[co.rank] ? '<span class="medal">' + MEDALS[co.rank] + '</span>' : '') +
+      '</div>' +
+      '<div class="logo-wrap">' +
+        '<img src="' + co.logo + '" alt="' + co.name + ' logo" />' +
+      '</div>' +
+      '<div class="company-info">' +
+        '<div class="bar-track">' +
+          '<div class="bar-seg auto-ai" style="width:' + autoPct + '%">' + (autoPct >= 4 ? '<span class="seg-label">' + autoPct + '%</span>' : '') + '</div>' +
+          '<div class="bar-seg ai-asst" style="width:' + asstPct + '%">' + (asstPct >= 4 ? '<span class="seg-label">' + asstPct + '%</span>' : '') + '</div>' +
+          '<div class="bar-seg ai-enbl" style="width:' + enblPct + '%">' + (enblPct >= 4 ? '<span class="seg-label">' + enblPct + '%</span>' : '') + '</div>' +
+          '<div class="bar-seg no-uai"  style="width:' + noaiPct + '%">' + (noaiPct >= 4 ? '<span class="seg-label">' + noaiPct + '%</span>' : '') + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="stats-col">' +
+        '<div class="stat-main">' + co.aiAssist + '</div>' +
+      '</div>';
+    lbUai.appendChild(card);
+  });
+}());
+</script>
+
+<!-- ── UseOfAI Footer ────────────────────────────────────────────── -->
+<div class="footer-strip">
+  <div class="legend">
+    <div class="legend-item">
+      <span class="legend-dot" style="background:var(--ai-native)"></span>Autonomous AI
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot" style="background:var(--ai-adop)"></span>AI Assisted
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot" style="background:var(--ai-app)"></span>AI Enabled
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot" style="background:var(--no-ai)"></span>No AI use at all
+    </div>
+  </div>
+  <div class="footer-note">Based on 465 mapped activities per company · Logos © respective brand owners</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!--   BUSINESS FUNCTION WISE STATE OF AI                              -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+
+<div class="section-sep"></div>
+
+<!-- ── Page Header ───────────────────────────────────────────────── -->
+<div class="page-header">
+  <h2 class="page-title">Business Function wise State of AI</h2>
+  <p class="page-subtitle">
+    Where each of the 10 business functions sits on the State of AI spectrum across
+    <strong>FMCG Leader</strong>, <strong>FMCG Challenger 1</strong>, <strong>FMCG Challenger 2</strong> and <strong>Subject FMCG Co.</strong>.
+    <strong>AI Nativeness</strong> is the north star; <strong>Without AI</strong> is the most laggard state.
+  </p>
+  <div class="divider"></div>
+</div>
+
+<!-- ── Section Label ─────────────────────────────────────────────── -->
+<div class="section-label">Spectrum · Business Functions by State of AI — FMCG Leader · FMCG Challenger 1 · FMCG Challenger 2 · Subject FMCG Co.</div>
+
+<!-- ── Spectrum Grid ─────────────────────────────────────────────── -->
+<div class="spectrum-grid" id="spectrum-bf"></div>
+
+<!-- ── Footer ────────────────────────────────────────────────────── -->
+<div class="footer-strip">
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:var(--ai-native)"></span>AI Nativeness ⭐</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--ai-app)"></span>AI Application</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--ai-adop)"></span>AI Adoption</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--no-ai)"></span>Without AI</div>
+  </div>
+  <div class="footer-note">Based on 10 mapped business functions per company · FMCG Leader · FMCG Challenger 1 · FMCG Challenger 2 · Subject FMCG Co. (subject company)</div>
+</div>
+
+<script>
+(function () {
+  // Business function names (abbreviated for chip display; Id order 1–10)
+  var BFS = [
+    'Marketing & Brand Mgmt',
+    'Sales & Distribution',
+    'Supply Chain',
+    'R&D / Product Dev.',
+    'Finance',
+    'HR',
+    'Legal & Compliance',
+    'IT / Digital',
+    'Manufacturing / Ops',
+    'Corporate Affairs',
+  ];
+
+  // Each company's StateOfAI per BF (array index = BF Id - 1)
+  // StateOfAI: 1=AI Application, 2=AI Adoption, 3=AI Nativeness, 4=Without AI
+  var companies = [
+    { name: 'FMCG Leader',          logo: 'assets/logos/leader.svg',     isHUL: false, bfStates: [2,2,2,2,2,2,2,2,2,2] },
+    { name: 'FMCG Challenger 1', logo: 'assets/logos/challenger1.svg', isHUL: false, bfStates: [2,2,2,2,2,2,2,2,2,2] },
+    { name: 'FMCG Challenger 2',       logo: 'assets/logos/challenger2.svg', isHUL: false, bfStates: [2,2,2,2,2,2,2,2,2,2] },
+    { name: 'Subject FMCG Co.',               logo: 'assets/logos/subject.svg',    isHUL: true,  bfStates: [2,2,2,2,2,2,2,2,2,2] },
+  ];
+
+  // Spectrum order: most advanced (top) → least preferred (bottom)
+  var TIERS = [
+    { id: 3, name: 'AI Nativeness', cls: 't-native', chipCls: 'chip-native', meta: '\u2B50 North Star \u00B7 Most Advanced' },
+    { id: 1, name: 'AI Application', cls: 't-app',   chipCls: 'chip-app',    meta: '' },
+    { id: 2, name: 'AI Adoption',    cls: 't-adop',  chipCls: 'chip-adop',   meta: '' },
+    { id: 4, name: 'Without AI',     cls: 't-no-ai', chipCls: 'chip-no-ai',  meta: '\u229B Least Preferred' },
+  ];
+
+  var grid = document.getElementById('spectrum-bf');
+
+  // ── Header row: axis cell + 3 company logo cells ─────────────────
+  var html = '<div class="spec-axis-head">' +
+    '<div class="spec-axis-txt">State of AI</div>' +
+    '<div class="spec-axis-txt">Spectrum \u2195</div>' +
+  '</div>';
+
+  companies.forEach(function (co) {
+    html +=
+      '<div class="spec-col-head' + (co.isHUL ? ' is-hul' : '') + '">' +
+        '<img src="' + co.logo + '" alt="' + co.name + ' logo">' +
+      '</div>';
+  });
+
+  // ── Tier rows ─────────────────────────────────────────────────────
+  TIERS.forEach(function (tier) {
+    // Left label cell
+    html += '<div class="spec-tier-label ' + tier.cls + '">' +
+      '<div class="spec-tier-name">' + tier.name + '</div>' +
+      (tier.meta ? '<div class="spec-tier-meta">' + tier.meta + '</div>' : '') +
+    '</div>';
+
+    // Three company data cells
+    companies.forEach(function (co) {
+      var bfsHere = co.bfStates
+        .map(function (s, i) { return s === tier.id ? BFS[i] : null; })
+        .filter(Boolean);
+
+      var hulClass = co.isHUL ? ' hul-cell' : '';
+      if (bfsHere.length === 0) {
+        html += '<div class="spec-tier-cell empty' + hulClass + '"><span class="spec-empty-dash">&mdash;</span></div>';
+      } else {
+        html += '<div class="spec-tier-cell' + hulClass + '">';
+        bfsHere.forEach(function (bf) {
+          html += '<span class="bf-chip ' + tier.chipCls + '">' + bf + '</span>';
+        });
+        html += '</div>';
+      }
+    });
+  });
+
+  grid.innerHTML = html;
+}());
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!--   PROCESS WISE USE OF AI                                           -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+
+<div class="section-sep"></div>
+
+<!-- ── Page Header ───────────────────────────────────────────────── -->
+<div class="page-header">
+  <h2 class="page-title">Process wise Use of AI</h2>
+  <p class="page-subtitle">
+    Count of processes per business function across the Use of AI spectrum for
+    <strong>FMCG Leader</strong>, <strong>FMCG Challenger 1</strong>, <strong>FMCG Challenger 2</strong> and <strong>Subject FMCG Co.</strong>.
+    <strong>Autonomous AI</strong> is the north star; <strong>No AI Use at All</strong> is the most laggard state.
+  </p>
+  <div class="divider"></div>
+</div>
+
+<!-- ── Section Label ─────────────────────────────────────────────── -->
+<div class="section-label">Spectrum · Process counts by Use of AI — FMCG Leader · FMCG Challenger 1 · FMCG Challenger 2 · Subject FMCG Co.</div>
+
+<!-- ── Spectrum Grid ─────────────────────────────────────────────── -->
+<div class="spectrum-grid" id="spectrum-proc"></div>
+
+<!-- ── Footer ────────────────────────────────────────────────────── -->
+<div class="footer-strip">
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:var(--ai-native)"></span>Autonomous AI ⭐</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--ai-app)"></span>AI Enabled</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--ai-adop)"></span>AI Assisted</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--no-ai)"></span>No AI Use at All</div>
+  </div>
+  <div class="footer-note">Based on 93 mapped processes per company · FMCG Leader · FMCG Challenger 1 · FMCG Challenger 2 · Subject FMCG Co.</div>
+</div>
+
+<script>
+(function () {
+  var BFS = [
+    'Marketing & Brand Mgmt',
+    'Sales & Distribution',
+    'Supply Chain',
+    'R&D / Product Dev.',
+    'Finance',
+    'HR',
+    'Legal & Compliance',
+    'IT / Digital',
+    'Manufacturing / Ops',
+    'Corporate Affairs',
+  ];
+
+  // bfCounts per BF: [autonomousAI, aiEnabled, aiAssisted, noAI]
+  var companies = [
+    {
+      name: 'FMCG Leader', logo: 'assets/logos/leader.svg', isHUL: false,
+      bfCounts: [
+        [0,5,5,0],   // BF1  Marketing & Brand Mgmt
+        [0,0,9,0],   // BF2  Sales & Distribution
+        [0,1,8,0],   // BF3  Supply Chain
+        [0,3,6,0],   // BF4  R&D / Product Dev.
+        [0,5,5,0],   // BF5  Finance
+        [0,3,7,0],   // BF6  HR
+        [0,1,8,0],   // BF7  Legal & Compliance
+        [0,4,5,0],   // BF8  IT / Digital
+        [0,2,5,3],   // BF9  Manufacturing / Ops
+        [0,3,4,1],   // BF10 Corporate Affairs
+      ]
+    },
+    {
+      name: 'FMCG Challenger 1', logo: 'assets/logos/challenger1.svg', isHUL: false,
+      bfCounts: [
+        [0,5,5,0],   // BF1
+        [0,1,8,0],   // BF2
+        [0,1,8,0],   // BF3
+        [0,4,5,0],   // BF4
+        [0,0,10,0],  // BF5
+        [0,0,10,0],  // BF6
+        [0,0,8,1],   // BF7
+        [0,1,6,2],   // BF8
+        [0,0,7,3],   // BF9
+        [0,1,6,1],   // BF10
+      ]
+    },
+    {
+      name: 'FMCG Challenger 2', logo: 'assets/logos/challenger2.svg', isHUL: false,
+      bfCounts: [
+        [0,2,8,0],   // BF1
+        [0,1,8,0],   // BF2
+        [0,1,8,0],   // BF3
+        [0,2,7,0],   // BF4
+        [0,0,10,0],  // BF5
+        [0,0,10,0],  // BF6
+        [0,0,8,1],   // BF7
+        [0,1,7,1],   // BF8
+        [0,1,6,3],   // BF9
+        [0,1,6,1],   // BF10
+      ]
+    },
+    {
+      name: 'Subject FMCG Co.', logo: 'assets/logos/subject.svg', isHUL: true,
+      bfCounts: [
+        [0,2,8,0],   // BF1
+        [0,1,8,0],   // BF2
+        [0,1,8,0],   // BF3
+        [0,1,7,1],   // BF4
+        [0,0,10,0],  // BF5
+        [0,0,10,0],  // BF6
+        [0,0,8,1],   // BF7
+        [0,0,7,2],   // BF8
+        [0,1,6,3],   // BF9
+        [0,0,7,1],   // BF10
+      ]
+    },
+  ];
+
+  // Spectrum: top = north star → bottom = most laggard
+  // idx matches position in bfCounts sub-array
+  var TIERS = [
+    { idx: 0, name: 'Autonomous AI',    cls: 't-native', chipCls: 'chip-native', meta: '\u2B50 North Star \u00B7 Most Advanced' },
+    { idx: 1, name: 'AI Enabled',       cls: 't-app',    chipCls: 'chip-app',    meta: '' },
+    { idx: 2, name: 'AI Assisted',      cls: 't-adop',   chipCls: 'chip-adop',   meta: '' },
+    { idx: 3, name: 'No AI Use at All', cls: 't-no-ai',  chipCls: 'chip-no-ai',  meta: '\u229B Most Laggard' },
+  ];
+
+  var grid = document.getElementById('spectrum-proc');
+
+  // Header row
+  var html = '<div class="spec-axis-head">' +
+    '<div class="spec-axis-txt">Use of AI</div>' +
+    '<div class="spec-axis-txt">Spectrum \u2195</div>' +
+  '</div>';
+
+  companies.forEach(function (co) {
+    html +=
+      '<div class="spec-col-head' + (co.isHUL ? ' is-hul' : '') + '">' +
+        '<img src="' + co.logo + '" alt="' + co.name + ' logo">' +
+      '</div>';
+  });
+
+  // Tier rows — BFs aligned in fixed-height rows across all company columns
+  TIERS.forEach(function (tier) {
+    // Find which BF indices are active (count > 0) in at least one company
+    var activeBFIdx = BFS.map(function (_, i) {
+      return companies.some(function (co) { return co.bfCounts[i][tier.idx] > 0; }) ? i : -1;
+    }).filter(function (i) { return i >= 0; });
+
+    // Tier label cell
+    html += '<div class="spec-tier-label ' + tier.cls + '">' +
+      '<div class="spec-tier-name">' + tier.name + '</div>' +
+      (tier.meta ? '<div class="spec-tier-meta">' + tier.meta + '</div>' : '') +
+    '</div>';
+
+    // Company data cells
+    companies.forEach(function (co) {
+      var hulClass = co.isHUL ? ' hul-cell' : '';
+
+      if (activeBFIdx.length === 0) {
+        // Entire tier is empty across all companies (Autonomous AI)
+        html += '<div class="spec-tier-cell empty' + hulClass + '"><span class="spec-empty-dash">&mdash;</span></div>';
+      } else {
+        html += '<div class="spec-tier-cell proc-aligned' + hulClass + '">';
+        activeBFIdx.forEach(function (bfIdx) {
+          var cnt = co.bfCounts[bfIdx][tier.idx];
+          if (cnt > 0) {
+            html += '<div class="spec-bf-row"><span class="bf-chip ' + tier.chipCls + '">' + cnt + ' (' + BFS[bfIdx] + ')</span></div>';
+          } else {
+            html += '<div class="spec-bf-gap">&mdash;</div>';
+          }
+        });
+        html += '</div>';
+      }
+    });
+  });
+
+  grid.innerHTML = html;
+}());
+</script>
+
+</body>
+</html>

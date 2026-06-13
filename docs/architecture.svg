@@ -1,0 +1,77 @@
+<svg viewBox="0 0 820 420" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Arial,sans-serif">
+  <title>FMCG AI Benchmarking Dashboard — Architecture</title>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 Z" fill="#94A3B8"/>
+    </marker>
+  </defs>
+  <rect width="820" height="420" fill="#F8F9FC" rx="12"/>
+  <text x="410" y="32" text-anchor="middle" font-size="15" font-weight="700" fill="#1E293B">FMCG AI Benchmarking Dashboard — Architecture</text>
+  <rect x="30" y="56" width="160" height="120" rx="8" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1.5"/>
+  <text x="110" y="76" text-anchor="middle" font-size="10" font-weight="700" fill="#1D4ED8" letter-spacing="0.5">DATA LAYER</text>
+  <rect x="44" y="86" width="132" height="24" rx="4" fill="#DBEAFE"/>
+  <text x="110" y="103" text-anchor="middle" font-size="10" fill="#1E3A8A">18 CSV Files</text>
+  <rect x="44" y="116" width="132" height="24" rx="4" fill="#DBEAFE"/>
+  <text x="110" y="133" text-anchor="middle" font-size="10" fill="#1E3A8A">93 Processes / 465 Activities</text>
+  <rect x="44" y="146" width="132" height="22" rx="4" fill="#DBEAFE"/>
+  <text x="110" y="162" text-anchor="middle" font-size="10" fill="#1E3A8A">4 Companies x 10 BFs</text>
+  <line x1="190" y1="116" x2="230" y2="116" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="210" y="111" text-anchor="middle" font-size="8" fill="#64748B">embedded</text>
+  <text x="210" y="122" text-anchor="middle" font-size="8" fill="#64748B">in JS</text>
+  <rect x="230" y="56" width="200" height="260" rx="8" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+  <text x="330" y="76" text-anchor="middle" font-size="10" font-weight="700" fill="#15803D" letter-spacing="0.5">APPLICATION</text>
+  <rect x="244" y="86" width="172" height="34" rx="4" fill="#DCFCE7" stroke="#86EFAC" stroke-width="1"/>
+  <text x="330" y="100" text-anchor="middle" font-size="10" font-weight="600" fill="#166534">Viz 1 — State of AI Scorecard</text>
+  <text x="330" y="113" text-anchor="middle" font-size="9" fill="#166534">Ranked leaderboard · stacked bars</text>
+  <rect x="244" y="128" width="172" height="34" rx="4" fill="#DCFCE7" stroke="#86EFAC" stroke-width="1"/>
+  <text x="330" y="142" text-anchor="middle" font-size="10" font-weight="600" fill="#166534">Viz 2 — Use of AI Scorecard</text>
+  <text x="330" y="155" text-anchor="middle" font-size="9" fill="#166534">Ranked leaderboard · stacked bars</text>
+  <rect x="244" y="170" width="172" height="34" rx="4" fill="#DCFCE7" stroke="#86EFAC" stroke-width="1"/>
+  <text x="330" y="184" text-anchor="middle" font-size="10" font-weight="600" fill="#166534">Viz 3 — BF x State of AI</text>
+  <text x="330" y="197" text-anchor="middle" font-size="9" fill="#166534">Spectrum grid · 10 BFs x 4 companies</text>
+  <rect x="244" y="212" width="172" height="34" rx="4" fill="#DCFCE7" stroke="#86EFAC" stroke-width="1"/>
+  <text x="330" y="226" text-anchor="middle" font-size="10" font-weight="600" fill="#166534">Viz 4 — Process x Use of AI</text>
+  <text x="330" y="239" text-anchor="middle" font-size="9" fill="#166534">Spectrum grid · aligned BF rows</text>
+  <rect x="244" y="256" width="172" height="48" rx="4" fill="#F0FDF4"/>
+  <text x="330" y="272" text-anchor="middle" font-size="9" fill="#14532D">Single HTML file · Vanilla JS</text>
+  <text x="330" y="285" text-anchor="middle" font-size="9" fill="#14532D">No framework · No build step</text>
+  <text x="330" y="298" text-anchor="middle" font-size="9" fill="#14532D">CSS Grid + Flexbox</text>
+  <rect x="30" y="240" width="160" height="70" rx="8" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.5"/>
+  <text x="110" y="260" text-anchor="middle" font-size="10" font-weight="700" fill="#C2410C" letter-spacing="0.5">LOCAL DEV</text>
+  <text x="110" y="278" text-anchor="middle" font-size="10" fill="#9A3412">Python http.server</text>
+  <text x="110" y="293" text-anchor="middle" font-size="10" fill="#9A3412">Port 7654</text>
+  <line x1="190" y1="275" x2="230" y2="275" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="430" y1="186" x2="480" y2="186" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="455" y="181" text-anchor="middle" font-size="8" fill="#64748B">aws s3 sync</text>
+  <rect x="480" y="56" width="140" height="90" rx="8" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1.5"/>
+  <text x="550" y="76" text-anchor="middle" font-size="10" font-weight="700" fill="#B45309" letter-spacing="0.5">AWS S3</text>
+  <text x="550" y="95" text-anchor="middle" font-size="10" fill="#92400E">Static website hosting</text>
+  <text x="550" y="110" text-anchor="middle" font-size="9" fill="#92400E">ap-south-1 (Mumbai)</text>
+  <text x="550" y="125" text-anchor="middle" font-size="9" fill="#92400E">Public bucket</text>
+  <line x1="550" y1="146" x2="550" y2="182" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="480" y="182" width="140" height="90" rx="8" fill="#FDF4FF" stroke="#E9D5FF" stroke-width="1.5"/>
+  <text x="550" y="202" text-anchor="middle" font-size="10" font-weight="700" fill="#7C3AED" letter-spacing="0.5">CLOUDFRONT</text>
+  <text x="550" y="220" text-anchor="middle" font-size="10" fill="#5B21B6">Global CDN · HTTPS</text>
+  <text x="550" y="235" text-anchor="middle" font-size="9" fill="#5B21B6">redirect-to-https</text>
+  <text x="550" y="250" text-anchor="middle" font-size="9" fill="#5B21B6">PriceClass_All</text>
+  <line x1="620" y1="227" x2="660" y2="227" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="660" y="196" width="130" height="62" rx="8" fill="#F0F9FF" stroke="#BAE6FD" stroke-width="1.5"/>
+  <text x="725" y="218" text-anchor="middle" font-size="10" font-weight="700" fill="#0369A1" letter-spacing="0.5">END USERS</text>
+  <text x="725" y="234" text-anchor="middle" font-size="9" fill="#075985">CXO / Strategy teams</text>
+  <text x="725" y="248" text-anchor="middle" font-size="9" fill="#075985">Any browser · No login</text>
+  <rect x="480" y="290" width="140" height="70" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+  <text x="550" y="310" text-anchor="middle" font-size="10" font-weight="700" fill="#334155" letter-spacing="0.5">GITHUB</text>
+  <text x="550" y="328" text-anchor="middle" font-size="9" fill="#475569">Public repo · MIT license</text>
+  <text x="550" y="343" text-anchor="middle" font-size="9" fill="#475569">Anonymised version</text>
+  <line x1="430" y1="290" x2="480" y2="320" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+  <text x="455" y="298" text-anchor="middle" font-size="8" fill="#64748B">git push</text>
+  <rect x="30" y="360" width="750" height="46" rx="6" fill="#F1F5F9"/>
+  <text x="50" y="378" font-size="9" font-weight="700" fill="#475569">LEGEND</text>
+  <rect x="110" y="368" width="10" height="10" rx="2" fill="#DCFCE7" stroke="#86EFAC" stroke-width="1"/>
+  <text x="126" y="378" font-size="9" fill="#475569">Application (vanilla JS / CSS)</text>
+  <rect x="280" y="368" width="10" height="10" rx="2" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1"/>
+  <text x="296" y="378" font-size="9" fill="#475569">AWS infrastructure</text>
+  <rect x="420" y="368" width="10" height="10" rx="2" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1"/>
+  <text x="436" y="378" font-size="9" fill="#475569">Data (embedded in JS at build)</text>
+  <text x="50" y="396" font-size="9" fill="#64748B">No server-side compute · No database · No API calls · All data pre-embedded · Zero runtime dependencies</text>
+</svg>

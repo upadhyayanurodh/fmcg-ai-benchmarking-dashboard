@@ -1,0 +1,28 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Secrets (none in this project — all data is public and pre-embedded)
+.env
+.env.local
+*.pem
+*.key
+
+# Claude Code
+.claude/settings.local.json
