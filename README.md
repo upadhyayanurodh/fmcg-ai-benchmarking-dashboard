@@ -7,7 +7,34 @@
 ![AWS](https://img.shields.io/badge/AWS-S3_%2B_CloudFront-FF9900?style=flat-square&logo=amazonaws)
 ![Status](https://img.shields.io/badge/Status-Active-green?style=flat-square)
 
-![Architecture](docs/architecture.svg)
+```mermaid
+flowchart LR
+    subgraph DATA["Data Layer"]
+        CSV["18 CSV Files\n93 processes · 465 activities\n4 companies · 10 business functions"]
+    end
+
+    subgraph APP["Application — Single HTML File"]
+        V1["Viz 1 · State of AI Scorecard\nRanked leaderboard · stacked bars"]
+        V2["Viz 2 · Use of AI Scorecard\nRanked leaderboard · stacked bars"]
+        V3["Viz 3 · BF × State of AI\nSpectrum grid · 10 BFs × 4 companies"]
+        V4["Viz 4 · Process × Use of AI\nSpectrum grid · aligned BF rows"]
+    end
+
+    subgraph AWS["AWS"]
+        S3["S3\nStatic website hosting\nap-south-1"]
+        CF["CloudFront\nGlobal CDN · HTTPS"]
+    end
+
+    subgraph DEV["Local Dev"]
+        PY["Python http.server\nPort 7654"]
+    end
+
+    CSV -->|"embedded in JS"| APP
+    PY -->|"serves"| APP
+    APP -->|"aws s3 sync"| S3
+    S3 --> CF
+    CF -->|"HTTPS"| USERS["CXO / Strategy Teams\nAny browser · No login"]
+```
 
 ---
 

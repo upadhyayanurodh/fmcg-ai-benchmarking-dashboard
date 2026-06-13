@@ -4,7 +4,34 @@
 
 The dashboard is a single static HTML file. All computation happens at page load in the browser. There is no server-side logic, no database, and no API calls at runtime.
 
-![Architecture Diagram](docs/architecture.svg)
+```mermaid
+flowchart LR
+    subgraph DATA["Data Layer"]
+        CSV["18 CSV Files\n93 processes · 465 activities\n4 companies · 10 business functions"]
+    end
+
+    subgraph APP["Application — Single HTML File"]
+        V1["Viz 1 · State of AI Scorecard\nRanked leaderboard · stacked bars"]
+        V2["Viz 2 · Use of AI Scorecard\nRanked leaderboard · stacked bars"]
+        V3["Viz 3 · BF × State of AI\nSpectrum grid · 10 BFs × 4 companies"]
+        V4["Viz 4 · Process × Use of AI\nSpectrum grid · aligned BF rows"]
+    end
+
+    subgraph AWS["AWS"]
+        S3["S3\nStatic website hosting\nap-south-1"]
+        CF["CloudFront\nGlobal CDN · HTTPS"]
+    end
+
+    subgraph DEV["Local Dev"]
+        PY["Python http.server\nPort 7654"]
+    end
+
+    CSV -->|"embedded in JS"| APP
+    PY -->|"serves"| APP
+    APP -->|"aws s3 sync"| S3
+    S3 --> CF
+    CF -->|"HTTPS"| USERS["CXO / Strategy Teams\nAny browser · No login"]
+```
 
 ## Components
 
@@ -12,7 +39,6 @@ The dashboard is a single static HTML file. All computation happens at page load
 |---|---|---|
 | `Build/state_of_ai_scorecard.html` | All four visualisations — JS data, rendering logic, CSS | Vanilla HTML/JS/CSS |
 | `Build/assets/logos/` | Company logo SVGs (anonymised in public version) | SVG |
-| `docs/architecture.svg` | Architecture diagram | SVG |
 | AWS S3 (`fmcg-ai-benchmarking-dashboard`) | Static file hosting | AWS S3 — ap-south-1 |
 | AWS CloudFront (`E3EF4S9G53A1LL`) | HTTPS + global CDN | AWS CloudFront |
 | Python `http.server` | Local development server | Python 3 stdlib |
