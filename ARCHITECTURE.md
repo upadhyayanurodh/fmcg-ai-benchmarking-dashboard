@@ -38,7 +38,7 @@ flowchart LR
 | Component | Role | Technology |
 |---|---|---|
 | `Build/state_of_ai_scorecard.html` | All four visualisations — JS data, rendering logic, CSS | Vanilla HTML/JS/CSS |
-| `Build/assets/logos/` | Company logo SVGs (anonymised in public version) | SVG |
+| `Build/assets/logos/` | Company logo SVGs — generic letter avatars | SVG |
 | AWS S3 (`fmcg-ai-benchmarking-dashboard`) | Static file hosting | AWS S3 — ap-south-1 |
 | AWS CloudFront (`E3EF4S9G53A1LL`) | HTTPS + global CDN | AWS CloudFront |
 | Python `http.server` | Local development server | Python 3 stdlib |
@@ -128,7 +128,7 @@ aws s3 sync Build s3://YOUR-BUCKET-NAME \
   --cache-control "no-cache, no-store, must-revalidate"
 
 # 6. Create CloudFront distribution (use S3 website endpoint as custom origin)
-# See AWS Console for full distribution config, or adapt the CLI call in context.md
+# Use DomainName: YOUR-BUCKET.s3-website.REGION.amazonaws.com with http-only OriginProtocolPolicy
 
 # 7. Invalidate on update
 aws cloudfront create-invalidation \

@@ -61,8 +61,6 @@ The dashboard answers four strategic questions in one view:
 
 ## Architecture
 
-![Architecture Diagram](docs/architecture.svg)
-
 All data is pre-processed from 18 CSV source files and embedded directly into the JavaScript — no server-side compute, no API calls, no database. The dashboard is a single `.html` file that can be opened locally or served from any static host.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for full component breakdown and design decisions.
