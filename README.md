@@ -232,7 +232,7 @@ Drop SVG files into `Build/assets/logos/` and update the `logo:` path in each da
 
 **Data embedded in JS over a runtime API** — The 18 CSV source files are pre-processed and the aggregated values embedded directly in the JS data arrays. This eliminates all runtime latency and CORS complexity, makes the dashboard work offline, and removes any server dependency. The tradeoff is that data updates require re-embedding — acceptable for a quarterly benchmarking cadence.
 
-**Vanilla JS over React/Vue/D3** — All four visualisations are built with DOM string concatenation and CSS Grid. No virtual DOM, no reactive state, no charting library. This keeps the bundle to a single file, makes the code auditable by any developer without framework knowledge, and produces sub-100ms render times for the dataset size.
+**Vanilla JS over React/Vue/D3** — All four visualisations are built with DOM string concatenation and CSS Grid. No virtual DOM, no reactive state, no charting library. This keeps the bundle to a single file, makes the code auditable by any developer without framework knowledge, and renders in under one second on any modern device for this dataset size.
 
 **Fixed 30px BF rows in Viz 4 for line-of-sight** — The process-count spectrum (Viz 4) uses fixed-height rows (`.spec-bf-row { height: 30px }`) with gap-rows where a business function has zero processes in a tier. This ensures the same business function always sits on the same visual row across all four company columns — a deliberate design decision for CXO readability, prioritised over compactness.
 

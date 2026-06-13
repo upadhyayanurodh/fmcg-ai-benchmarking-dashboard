@@ -133,7 +133,7 @@ aws s3 sync Build s3://YOUR-BUCKET-NAME \
 # Write the distribution config to a temp file, then create
 cat > /tmp/cf-dist.json << 'EOF'
 {
-  "CallerReference": "fmcg-dashboard-1",
+  "CallerReference": "fmcg-dashboard-$(date +%s)",
   "Comment": "FMCG AI Benchmarking Dashboard",
   "Enabled": true,
   "DefaultRootObject": "state_of_ai_scorecard.html",
@@ -142,6 +142,9 @@ cat > /tmp/cf-dist.json << 'EOF'
     "Items": [{
       "Id": "s3-website",
       "DomainName": "YOUR-BUCKET.s3-website.ap-south-1.amazonaws.com",
+      // Note: endpoint format varies by region.
+      // ap-south-1, eu-west-1, etc. → bucket.s3-website.REGION.amazonaws.com (dot-separated)
+      // us-east-1                   → bucket.s3-website-us-east-1.amazonaws.com (dash after "s3-website")
       "CustomOriginConfig": {
         "HTTPPort": 80,
         "HTTPSPort": 443,
