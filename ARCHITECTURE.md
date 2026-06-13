@@ -83,7 +83,7 @@ flowchart LR
 --ai-app:     #2E7FD4   /* blue    — AI Application / AI Enabled */
 --ai-adop:    #1A9968   /* green   — AI Adoption / AI Assisted */
 --no-ai:      #D13B4B   /* red     — Without AI / No AI Use at All */
---hul-accent: #E85D20   /* orange  — subject company highlight */
+--subject-accent: #E85D20   /* orange  — subject company highlight */
 ```
 
 Bar track: `height: 52px; border-radius: 8px; overflow: hidden` — `overflow:hidden` clips segments cleanly without per-segment border-radius.

@@ -157,7 +157,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the full AWS setup walkthrough.
 
 ## Lessons Learned
 
-**Unicode escapes in JS data vs. HTML entities are different search targets** — When anonymising company names (L'Oréal, Nestlé, P&G), the JS data used unicode escapes (`’`, `é`, `&`) while the HTML text used literal UTF-8 characters and HTML entities (`&amp;`). A simple string replace misses both. Python's `str.replace()` on the decoded file handles both correctly; `sed` struggles with em dashes and non-ASCII characters on macOS.
+**Unicode escapes in JS data vs. HTML entities are different search targets** — Company names containing special characters (accented letters, ampersands, typographic apostrophes) appear in two forms: unicode-escaped in JS data (`’`, `é`, `&`) and as literal UTF-8 or HTML entities (`&amp;`) in HTML text. A simple string replace misses one or the other. Python’s `str.replace()` on the decoded file handles both correctly; `sed` struggles with non-ASCII characters and em dashes on macOS.
 
 **CloudFront distributions take ~15 minutes to propagate globally** — Always kick off `create-distribution` as the first deployment step so it's ready by the time documentation is written. The distribution domain is available immediately in the API response even while `Status: InProgress`.
 

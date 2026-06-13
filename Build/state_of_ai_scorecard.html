@@ -31,7 +31,7 @@
     --ai-app:     #2E7FD4;   /* AI Application  — steel blue */
     --ai-adop:    #1A9968;   /* AI Adoption     — forest green */
     --no-ai:      #D13B4B;   /* Without AI      — crimson (least advanced) */
-    --hul-accent: #E85D20;   /* HUL highlight   — orange */
+    --subject-accent: #E85D20;   /* subject company highlight — orange */
 
     /* Text */
     --text-primary:   #0F1A2E;
@@ -165,8 +165,8 @@
     transform: translateY(-1px);
   }
 
-  /* HUL special highlight */
-  .rank-card.is-hul {
+  /* Subject company highlight */
+  .rank-card.is-subject {
     border-color: rgba(232, 93, 32, 0.35);
     background: linear-gradient(0deg, rgba(232, 93, 32, 0.035), rgba(232, 93, 32, 0.035)), var(--bg-card);
   }
@@ -176,7 +176,7 @@
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 1.8px;
-    color: var(--hul-accent);
+    color: var(--subject-accent);
     background: rgba(232, 93, 32, 0.1);
     padding: 3px 9px;
     border-radius: 4px;
@@ -256,7 +256,7 @@
     letter-spacing: -0.4px;
     color: var(--text-primary);
   }
-  .rank-card.is-hul .company-name { color: var(--hul-accent); }
+  .rank-card.is-subject .company-name { color: var(--subject-accent); }
   .medal {
     font-size: 22px;
     line-height: 1;
@@ -339,7 +339,7 @@
   .rank-card.rank-2 .stat-main { color: var(--silver); }
   .rank-card.rank-3 .stat-main { color: var(--bronze); }
   .rank-card.rank-4 .stat-main { color: var(--slate); }
-  .rank-card.is-hul .stat-main { color: var(--hul-accent); }
+  .rank-card.is-subject .stat-main { color: var(--subject-accent); }
   .stat-pct {
     font-size: 12px;
     font-weight: 700;
@@ -437,18 +437,18 @@
     font-weight: 700;
     color: var(--text-secondary);
   }
-  /* HUL subject company column header */
-  .spec-col-head.is-hul {
+  /* Subject company column header */
+  .spec-col-head.is-subject {
     border-color: rgba(232, 93, 32, 0.40);
     background: linear-gradient(0deg, rgba(232,93,32,.04), rgba(232,93,32,.04)), var(--bg-card);
   }
-  .spec-col-head.is-hul .spec-col-name { color: var(--hul-accent); }
+  .spec-col-head.is-subject .spec-col-name { color: var(--subject-accent); }
   .spec-subject-badge {
     font-size: 8px;
     font-weight: 800;
     letter-spacing: 1.4px;
     text-transform: uppercase;
-    color: var(--hul-accent);
+    color: var(--subject-accent);
     background: rgba(232,93,32,.10);
     padding: 2px 6px;
     border-radius: 3px;
@@ -500,7 +500,7 @@
     justify-content: center;
     opacity: 0.42;
   }
-  .spec-tier-cell.hul-cell {
+  .spec-tier-cell.subject-cell {
     border-color: rgba(232, 93, 32, 0.35);
     background: linear-gradient(0deg, rgba(232,93,32,.03), rgba(232,93,32,.03)), var(--bg-card);
   }
@@ -595,10 +595,10 @@
 const TOTAL_PROCESSES = 93;
 
 const companies = [
-  { name: "FMCG Leader",       logo: "assets/logos/leader.svg",     isHUL: false, aiNative: 0, aiApp: 27, aiAdop: 62, withoutAI: 4 },
-  { name: "FMCG Challenger 1", logo: "assets/logos/challenger1.svg", isHUL: false, aiNative: 0, aiApp: 13, aiAdop: 73, withoutAI: 7 },
-  { name: "FMCG Challenger 2", logo: "assets/logos/challenger2.svg", isHUL: false, aiNative: 0, aiApp: 9,  aiAdop: 78, withoutAI: 6 },
-  { name: "Subject FMCG Co.",       logo: "assets/logos/subject.svg",    isHUL: true,  aiNative: 0, aiApp: 6,  aiAdop: 79, withoutAI: 8 },
+  { name: "FMCG Leader",       logo: "assets/logos/leader.svg",     isSubject: false, aiNative: 0, aiApp: 27, aiAdop: 62, withoutAI: 4 },
+  { name: "FMCG Challenger 1", logo: "assets/logos/challenger1.svg", isSubject: false, aiNative: 0, aiApp: 13, aiAdop: 73, withoutAI: 7 },
+  { name: "FMCG Challenger 2", logo: "assets/logos/challenger2.svg", isSubject: false, aiNative: 0, aiApp: 9,  aiAdop: 78, withoutAI: 6 },
+  { name: "Subject FMCG Co.",       logo: "assets/logos/subject.svg",    isSubject: true,  aiNative: 0, aiApp: 6,  aiAdop: 79, withoutAI: 8 },
 ];
 
 // Assign ranks (competition ranking — ties share rank)
@@ -622,7 +622,7 @@ companies.forEach(co => {
   const noaiPct   = Math.round(co.withoutAI / TOTAL_PROCESSES * 100);
 
   const card = document.createElement('div');
-  card.className = `rank-card rank-${co.rank}${co.isHUL ? ' is-hul' : ''}`;
+  card.className = `rank-card rank-${co.rank}${co.isSubject ? ' is-subject' : ''}`;
   card.innerHTML = `
     <div class="rank-badge">
       <div class="rank-number">${co.rank}</div>
@@ -682,10 +682,10 @@ companies.forEach(co => {
   const MEDALS = { 1: '\uD83E\uDD47', 2: '\uD83E\uDD48', 3: '\uD83E\uDD49', 4: '' };
 
   const uaiCompanies = [
-    { name: "FMCG Challenger 2",       logo: "assets/logos/challenger2.svg", isHUL: false, autoAI: 0, aiAssist: 145, aiEnable: 44, noAI: 276 },
-    { name: "Subject FMCG Co.",               logo: "assets/logos/subject.svg",    isHUL: true,  autoAI: 0, aiAssist: 143, aiEnable: 25, noAI: 297 },
-    { name: "FMCG Challenger 1", logo: "assets/logos/challenger1.svg", isHUL: false, autoAI: 0, aiAssist: 142, aiEnable: 43, noAI: 280 },
-    { name: "FMCG Leader",          logo: "assets/logos/leader.svg",     isHUL: false, autoAI: 0, aiAssist: 126, aiEnable: 99, noAI: 240 },
+    { name: "FMCG Challenger 2",       logo: "assets/logos/challenger2.svg", isSubject: false, autoAI: 0, aiAssist: 145, aiEnable: 44, noAI: 276 },
+    { name: "Subject FMCG Co.",               logo: "assets/logos/subject.svg",    isSubject: true,  autoAI: 0, aiAssist: 143, aiEnable: 25, noAI: 297 },
+    { name: "FMCG Challenger 1", logo: "assets/logos/challenger1.svg", isSubject: false, autoAI: 0, aiAssist: 142, aiEnable: 43, noAI: 280 },
+    { name: "FMCG Leader",          logo: "assets/logos/leader.svg",     isSubject: false, autoAI: 0, aiAssist: 126, aiEnable: 99, noAI: 240 },
   ];
 
   // Assign ranks (competition ranking — ties share rank)
@@ -707,7 +707,7 @@ companies.forEach(co => {
     const noaiPct = Math.round(co.noAI     / TOTAL_ACTIVITIES * 100);
 
     const card = document.createElement('div');
-    card.className = 'rank-card rank-' + co.rank + (co.isHUL ? ' is-hul' : '');
+    card.className = 'rank-card rank-' + co.rank + (co.isSubject ? ' is-subject' : '');
     card.innerHTML =
       '<div class="rank-badge">' +
         '<div class="rank-number">' + co.rank + '</div>' +
@@ -805,10 +805,10 @@ companies.forEach(co => {
   // Each company's StateOfAI per BF (array index = BF Id - 1)
   // StateOfAI: 1=AI Application, 2=AI Adoption, 3=AI Nativeness, 4=Without AI
   var companies = [
-    { name: 'FMCG Leader',          logo: 'assets/logos/leader.svg',     isHUL: false, bfStates: [2,2,2,2,2,2,2,2,2,2] },
-    { name: 'FMCG Challenger 1', logo: 'assets/logos/challenger1.svg', isHUL: false, bfStates: [2,2,2,2,2,2,2,2,2,2] },
-    { name: 'FMCG Challenger 2',       logo: 'assets/logos/challenger2.svg', isHUL: false, bfStates: [2,2,2,2,2,2,2,2,2,2] },
-    { name: 'Subject FMCG Co.',               logo: 'assets/logos/subject.svg',    isHUL: true,  bfStates: [2,2,2,2,2,2,2,2,2,2] },
+    { name: 'FMCG Leader',          logo: 'assets/logos/leader.svg',     isSubject: false, bfStates: [2,2,2,2,2,2,2,2,2,2] },
+    { name: 'FMCG Challenger 1', logo: 'assets/logos/challenger1.svg', isSubject: false, bfStates: [2,2,2,2,2,2,2,2,2,2] },
+    { name: 'FMCG Challenger 2',       logo: 'assets/logos/challenger2.svg', isSubject: false, bfStates: [2,2,2,2,2,2,2,2,2,2] },
+    { name: 'Subject FMCG Co.',               logo: 'assets/logos/subject.svg',    isSubject: true,  bfStates: [2,2,2,2,2,2,2,2,2,2] },
   ];
 
   // Spectrum order: most advanced (top) → least preferred (bottom)
@@ -829,7 +829,7 @@ companies.forEach(co => {
 
   companies.forEach(function (co) {
     html +=
-      '<div class="spec-col-head' + (co.isHUL ? ' is-hul' : '') + '">' +
+      '<div class="spec-col-head' + (co.isSubject ? ' is-subject' : '') + '">' +
         '<img src="' + co.logo + '" alt="' + co.name + ' logo">' +
       '</div>';
   });
@@ -848,7 +848,7 @@ companies.forEach(co => {
         .map(function (s, i) { return s === tier.id ? BFS[i] : null; })
         .filter(Boolean);
 
-      var hulClass = co.isHUL ? ' hul-cell' : '';
+      var hulClass = co.isSubject ? ' subject-cell' : '';
       if (bfsHere.length === 0) {
         html += '<div class="spec-tier-cell empty' + hulClass + '"><span class="spec-empty-dash">&mdash;</span></div>';
       } else {
@@ -917,7 +917,7 @@ companies.forEach(co => {
   // bfCounts per BF: [autonomousAI, aiEnabled, aiAssisted, noAI]
   var companies = [
     {
-      name: 'FMCG Leader', logo: 'assets/logos/leader.svg', isHUL: false,
+      name: 'FMCG Leader', logo: 'assets/logos/leader.svg', isSubject: false,
       bfCounts: [
         [0,5,5,0],   // BF1  Marketing & Brand Mgmt
         [0,0,9,0],   // BF2  Sales & Distribution
@@ -932,7 +932,7 @@ companies.forEach(co => {
       ]
     },
     {
-      name: 'FMCG Challenger 1', logo: 'assets/logos/challenger1.svg', isHUL: false,
+      name: 'FMCG Challenger 1', logo: 'assets/logos/challenger1.svg', isSubject: false,
       bfCounts: [
         [0,5,5,0],   // BF1
         [0,1,8,0],   // BF2
@@ -947,7 +947,7 @@ companies.forEach(co => {
       ]
     },
     {
-      name: 'FMCG Challenger 2', logo: 'assets/logos/challenger2.svg', isHUL: false,
+      name: 'FMCG Challenger 2', logo: 'assets/logos/challenger2.svg', isSubject: false,
       bfCounts: [
         [0,2,8,0],   // BF1
         [0,1,8,0],   // BF2
@@ -962,7 +962,7 @@ companies.forEach(co => {
       ]
     },
     {
-      name: 'Subject FMCG Co.', logo: 'assets/logos/subject.svg', isHUL: true,
+      name: 'Subject FMCG Co.', logo: 'assets/logos/subject.svg', isSubject: true,
       bfCounts: [
         [0,2,8,0],   // BF1
         [0,1,8,0],   // BF2
@@ -997,7 +997,7 @@ companies.forEach(co => {
 
   companies.forEach(function (co) {
     html +=
-      '<div class="spec-col-head' + (co.isHUL ? ' is-hul' : '') + '">' +
+      '<div class="spec-col-head' + (co.isSubject ? ' is-subject' : '') + '">' +
         '<img src="' + co.logo + '" alt="' + co.name + ' logo">' +
       '</div>';
   });
@@ -1017,7 +1017,7 @@ companies.forEach(co => {
 
     // Company data cells
     companies.forEach(function (co) {
-      var hulClass = co.isHUL ? ' hul-cell' : '';
+      var hulClass = co.isSubject ? ' subject-cell' : '';
 
       if (activeBFIdx.length === 0) {
         // Entire tier is empty across all companies (Autonomous AI)
