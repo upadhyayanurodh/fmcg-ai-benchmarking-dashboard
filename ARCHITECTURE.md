@@ -2,7 +2,7 @@
 
 ## System Overview
 
-The dashboard is a single static HTML file. All computation happens at page load in the browser. There is no server-side logic, no database, and no API calls at runtime.
+The dashboard is a single static HTML file. All aggregation computation runs offline at build time — GROUP BY COUNT operations are executed against the source CSVs and the results hardcoded as JS arrays in the HTML. At page load, the browser renders those pre-computed values; there is no server-side logic, no database, and no API calls at runtime.
 
 ```mermaid
 flowchart TD
@@ -33,27 +33,30 @@ flowchart TD
     BUILD --> V2
     BUILD --> V3
     BUILD --> V4
-    APP -->|"aws s3 sync + cloudfront invalidation"| S3
-    S3 --> CF
+    APP -->|"aws s3 sync"| S3
+    APP -.->|"cloudfront invalidation"| CF
+    S3 -->|"static origin"| CF
     CF -->|"HTTPS · global edge"| USERS
 ```
 
 ## Components
 
-| Component | Role | Technology |
+| Component | Role | Environment |
 |---|---|---|
-| `Build/state_of_ai_scorecard.html` | All four visualisations — JS data, rendering logic, CSS | Vanilla HTML/JS/CSS |
-| `Build/assets/logos/` | Company logo SVGs — generic letter avatars | SVG |
-| AWS S3 (`fmcg-ai-benchmarking-dashboard`) | Static file hosting | AWS S3 — ap-south-1 |
-| AWS CloudFront (`E3EF4S9G53A1LL`) | HTTPS + global CDN | AWS CloudFront |
-| Python `http.server` | Local development server | Python 3 stdlib |
+| `Data/*.csv` (18 files) | Source of truth — companies, BFs, processes, activities, AI tier classifications | Build time only — never deployed |
+| Python aggregation scripts | Compute the 4 dashboard metrics from CSVs; results pasted into HTML JS data blocks | Build time only |
+| `Build/state_of_ai_scorecard.html` | All four visualisations — hardcoded JS data, rendering logic, CSS | Production (deployed to S3) |
+| `Build/assets/logos/` | Company logo SVGs — generic letter avatars | Production (deployed to S3) |
+| AWS S3 (`fmcg-ai-benchmarking-dashboard`) | Static file hosting | Production — ap-south-1 |
+| AWS CloudFront (`E3EF4S9G53A1LL`) | HTTPS + global CDN + redirect-to-https | Production |
+| Python `http.server` | Local preview server | Development only |
 
-## Data Flow
+## Build and Runtime Flow
 
 1. **Source data**: 18 CSV files define the raw dataset — 93 processes, 465 activities, 10 business functions, 4 companies
-2. **Pre-processing**: Aggregate counts (processes per tier per company per BF) computed from the CSVs and embedded directly as JS arrays in the HTML file
-3. **Page load**: Browser parses the HTML, JS IIFEs execute and render all four visualisations via DOM `innerHTML`
-4. **No network calls**: Once the HTML file is loaded, all rendering is local — no fetch, no XHR, no CDN fonts
+2. **Offline aggregation** *(manual, build time)*: Run 4 Python scripts against the CSVs to compute dashboard metrics. Copy the output counts into the 4 JS data blocks in `Build/state_of_ai_scorecard.html`. These are two separate manual steps — there is no script that auto-embeds the results.
+3. **Deploy** *(manual)*: `aws s3 sync` uploads the updated HTML to S3; `aws cloudfront create-invalidation` flushes the CDN cache.
+4. **Page load** *(automated, runtime)*: Browser downloads the HTML from CloudFront, JS IIFEs execute, and all four visualisations render via DOM `innerHTML`. No fetch, no XHR, no CDN fonts — the file is fully self-contained.
 
 ---
 
@@ -744,7 +747,11 @@ aws s3 sync Build s3://YOUR-BUCKET-NAME \
 
 # 6. Create CloudFront distribution
 # Write the distribution config to a temp file, then create
-cat > /tmp/cf-dist.json << 'EOF'
+# S3 website endpoint format varies by region:
+#   ap-south-1, eu-west-1, etc. → YOUR-BUCKET.s3-website.REGION.amazonaws.com  (dot-separated)
+#   us-east-1                   → YOUR-BUCKET.s3-website-us-east-1.amazonaws.com (dash after "s3-website")
+# CachePolicyId 658327ea-... is the AWS managed "CachingOptimized" policy.
+cat > /tmp/cf-dist.json << EOF
 {
   "CallerReference": "fmcg-dashboard-$(date +%s)",
   "Comment": "FMCG AI Benchmarking Dashboard",
@@ -755,9 +762,6 @@ cat > /tmp/cf-dist.json << 'EOF'
     "Items": [{
       "Id": "s3-website",
       "DomainName": "YOUR-BUCKET.s3-website.ap-south-1.amazonaws.com",
-      // Note: endpoint format varies by region.
-      // ap-south-1, eu-west-1, etc. → bucket.s3-website.REGION.amazonaws.com (dot-separated)
-      // us-east-1                   → bucket.s3-website-us-east-1.amazonaws.com (dash after "s3-website")
       "CustomOriginConfig": {
         "HTTPPort": 80,
         "HTTPSPort": 443,
@@ -787,7 +791,52 @@ aws cloudfront create-invalidation \
   --distribution-id YOUR-DISTRIBUTION-ID --paths "/*"
 ```
 
+## Data Update Procedure
+
+Run this end-to-end when new benchmarking data is ready. Assumes the 18 CSVs have been updated.
+
+**Step 1 — Re-run the 4 aggregation scripts**
+
+Follow the Python snippets in the [Aggregation Pipeline](#aggregation-pipeline) section. Each script prints its output to stdout.
+
+**Step 2 — Patch the 4 JS data blocks in `Build/state_of_ai_scorecard.html`**
+
+| Script output | Target in HTML |
+|---|---|
+| Viz 1 company counts (`aiNative`, `aiApp`, `aiAdop`, `withoutAI`) | `const companies = [...]` block (~line 595) |
+| Viz 2 activity counts (`autoAI`, `aiAssist`, `aiEnable`, `noAI`) | Second `companies` block (~line 681) |
+| Viz 3 `bfStates[10]` per company | `bfStates` arrays inside Viz 3 data block |
+| Viz 4 `bfCounts[10][4]` per company | `bfCounts` arrays inside Viz 4 data block |
+
+Pre-sort each array descending by `aiApp` (Viz 1) and `aiAssist` (Viz 2) before pasting — rank is derived from array index, not computed at render time.
+
+**Step 3 — Validate before deploying**
+
+Run the validation script from the [Data Quality](#data-quality) section against all 18 updated CSVs. Also verify: `TOTAL_PROCESSES = 93` and `TOTAL_ACTIVITIES = 465` constants still match your data.
+
+**Step 4 — Deploy**
+
+```bash
+# Sync updated HTML to S3
+aws s3 sync Build s3://fmcg-ai-benchmarking-dashboard \
+  --delete \
+  --cache-control "no-cache, no-store, must-revalidate"
+
+# Flush CloudFront cache (propagates in ~30 seconds)
+aws cloudfront create-invalidation \
+  --distribution-id E3EF4S9G53A1LL \
+  --paths "/*"
+```
+
+**Step 5 — Verify**
+
+Open `https://d2hzpx71woh3es.cloudfront.net/state_of_ai_scorecard.html` and confirm the numbers match your script output. A hard refresh (`Cmd+Shift+R` / `Ctrl+Shift+R`) may be needed if a previous version is cached locally.
+
+---
+
 ## Key Design Decisions
+
+**Offline aggregation over runtime browser-side computation** — The 4 dashboard metrics could be computed in the browser at page load: load the CSVs via `fetch`, run GROUP BY logic in JS, render. Instead, the aggregations run offline against the source CSVs and the results are hardcoded as JS arrays. This eliminates any need to host, fetch, or parse 18 CSVs at runtime; guarantees instant render regardless of dataset size; and removes all client-side aggregation logic. The trade-off is that data updates require re-running the aggregation scripts and redeploying the HTML — acceptable for a quarterly benchmarking cadence.
 
 **Single file over separate JS/CSS bundles** — Eliminates all module resolution, bundling, and build tooling. The file is large but self-contained. Any engineer can read the source without a build environment.
 

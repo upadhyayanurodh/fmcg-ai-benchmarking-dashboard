@@ -36,8 +36,9 @@ flowchart TD
     BUILD --> V2
     BUILD --> V3
     BUILD --> V4
-    APP -->|"aws s3 sync + cloudfront invalidation"| S3
-    S3 --> CF
+    APP -->|"aws s3 sync"| S3
+    APP -.->|"cloudfront invalidation"| CF
+    S3 -->|"static origin"| CF
     CF -->|"HTTPS · global edge"| USERS
 ```
 
