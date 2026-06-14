@@ -216,7 +216,7 @@ Process-count spectrum grid with fixed-height aligned rows — enabling direct c
 
 ## Key Decisions & Tradeoffs
 
-**Single HTML file over a multi-file SPA** — All JS, CSS, and data live in one `state_of_ai_scorecard.html`. The upside: zero build tooling, instant deployment, works from a file:// URL. The downside: the file grows large as data is embedded (~39KB). For a data-fixed dashboard with no user input, this is the right call — there is nothing to build.
+**Single HTML file over a multi-file SPA** — All JS, CSS, and data live in one `state_of_ai_scorecard.html`. The upside: zero build tooling, instant deployment to S3 with a single CLI command. The downside: the file grows large as data is embedded (~39KB). For a data-fixed dashboard with no user input, this is the right call — there is nothing to build.
 
 **Data embedded in JS over a runtime API** — The 18 CSV source files are pre-processed and the aggregated values embedded directly in the JS data arrays. This eliminates all runtime latency and CORS complexity, makes the dashboard work offline, and removes any server dependency. The tradeoff is that data updates require re-embedding — acceptable for a quarterly benchmarking cadence.
 
@@ -230,7 +230,7 @@ Process-count spectrum grid with fixed-height aligned rows — enabling direct c
 
 ## Lessons Learned
 
-**Unicode escapes in JS data vs. HTML entities are different search targets** — Company names containing special characters (accented letters, ampersands, typographic apostrophes) appear in two forms: unicode-escaped in JS data (`’`, `é`, `&`) and as literal UTF-8 or HTML entities (`&amp;`) in HTML text. A simple string replace misses one or the other. Python’s `str.replace()` on the decoded file handles both correctly; `sed` struggles with non-ASCII characters and em dashes on macOS.
+**Non-ASCII characters in labels are a dual-encoding trap** — If any data label contains accented letters, typographic apostrophes, or ampersands, they appear in two forms inside the HTML file: unicode-escaped in JS string literals (`’`, `é`, `&`) and as literal UTF-8 or HTML entities (`&amp;`) in HTML text nodes. A naive string replace targeting one form silently misses the other. Python’s `str.replace()` on the decoded file handles both; `sed` on macOS struggles with non-ASCII bytes and should be avoided for this kind of bulk substitution.
 
 **CloudFront distributions take ~15 minutes to propagate globally** — Always kick off `create-distribution` as the first deployment step so it's ready by the time documentation is written. The distribution domain is available immediately in the API response even while `Status: InProgress`.
 

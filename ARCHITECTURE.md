@@ -475,8 +475,8 @@ Pre-sort descending by `aiApp` before embedding — rank order is derived from a
 | Rank | Company | AI Nativeness | AI Application | AI Adoption | Without AI |
 |---|---|---|---|---|---|
 | 1 | FMCG Leader | 0 | **27** | 62 | 4 |
-| 2 | Challenger 1 | 0 | **13** | 75 | 5 |
-| 3 | Challenger 2 | 0 | **9** | 80 | 4 |
+| 2 | Challenger 1 | 0 | **13** | 73 | 7 |
+| 3 | Challenger 2 | 0 | **9** | 78 | 6 |
 | 4 | Subject Co. | 0 | **6** | 79 | 8 |
 
 ---
@@ -511,10 +511,10 @@ Pre-sort descending by `aiAssist`.
 
 | Rank | Company | Autonomous AI | AI Assisted | AI Enabled | No AI |
 |---|---|---|---|---|---|
-| 1 | Challenger 2 | 0 | **145** | 57 | 263 |
-| 2 | Subject Co. | 0 | **143** | 41 | 281 |
-| 3 | Challenger 1 | 0 | **142** | 57 | 266 |
-| 4 | FMCG Leader | 0 | **126** | 144 | 195 |
+| 1 | Challenger 2 | 0 | **145** | 44 | 276 |
+| 2 | Subject Co. | 0 | **143** | 25 | 297 |
+| 3 | Challenger 1 | 0 | **142** | 43 | 280 |
+| 4 | FMCG Leader | 0 | **126** | 99 | 240 |
 
 ---
 
