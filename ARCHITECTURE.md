@@ -49,7 +49,6 @@ flowchart TD
 | `Build/assets/logos/` | Company logo SVGs — generic letter avatars | Production (deployed to S3) |
 | AWS S3 (`fmcg-ai-benchmarking-dashboard`) | Static file hosting | Production — ap-south-1 |
 | AWS CloudFront (`E3EF4S9G53A1LL`) | HTTPS + global CDN + redirect-to-https | Production |
-| Python `http.server` | Local preview server | Development only |
 
 ## Build and Runtime Flow
 

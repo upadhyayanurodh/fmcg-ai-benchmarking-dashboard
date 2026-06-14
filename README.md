@@ -67,7 +67,7 @@ The dashboard answers four strategic questions in one view:
 
 ## Architecture
 
-All data is pre-processed from 18 CSV source files and embedded directly into the JavaScript — no server-side compute, no API calls, no database. The dashboard is a single `.html` file that can be opened locally or served from any static host.
+All data is pre-processed from 18 CSV source files and embedded directly into the JavaScript — no server-side compute, no API calls, no database. The dashboard is a single `.html` file deployed to AWS S3 + CloudFront.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for full component breakdown and design decisions.
 
@@ -88,9 +88,8 @@ Scroll through all four panels top to bottom. Start with Viz 1 to see the overal
 | Layer | Technology |
 |---|---|
 | Frontend | Single HTML file — vanilla JS, no framework, no build tools |
-| Hosting (prod) | AWS CloudFront — global CDN, HTTPS, redirect-to-https |
-| Storage (prod) | AWS S3 — static website hosting, ap-south-1 |
-| Local dev | Python `http.server` — port 7654 |
+| Hosting | AWS CloudFront — global CDN, HTTPS, redirect-to-https |
+| Storage | AWS S3 — static website hosting, ap-south-1 |
 | Data source | 18 CSV files — 93 processes, 465 activities, 10 business functions |
 | Deployment | AWS CLI — `aws s3 sync` + `aws cloudfront create-invalidation` |
 | Development | Claude Code (Anthropic) — agentic development assistance |
@@ -106,30 +105,13 @@ Scroll through all four panels top to bottom. Start with Viz 1 to see the overal
 - **Responsive %  labels** — segment labels only shown when the bar segment is wide enough to hold them (≥4%)
 - **Zero dependencies** — one `.html` file, no npm, no build step, works offline
 
-## Getting Started
+## Deployment
 
 ### Prerequisites
 
-- Python 3 (for local dev server)
-- AWS CLI configured with appropriate permissions (for deployment only)
+- AWS CLI configured with S3 and CloudFront permissions
 
-### Running locally
-
-```bash
-# Clone the repo
-git clone https://github.com/upadhyayanurodh/fmcg-ai-benchmarking-dashboard.git
-cd fmcg-ai-benchmarking-dashboard
-
-# Serve the Build folder
-python3 -m http.server 7654 --directory Build
-
-# Open in browser
-open http://localhost:7654/state_of_ai_scorecard.html
-```
-
-No installation, no dependencies, no configuration required.
-
-### Deploying to AWS
+### Deploy to AWS
 
 ```bash
 # Sync to S3
