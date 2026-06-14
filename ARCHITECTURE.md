@@ -5,32 +5,37 @@
 The dashboard is a single static HTML file. All computation happens at page load in the browser. There is no server-side logic, no database, and no API calls at runtime.
 
 ```mermaid
-flowchart LR
-    subgraph DATA["Data Layer"]
-        CSV["18 CSV Files\n93 processes · 465 activities\n4 companies · 10 business functions"]
+flowchart TD
+    subgraph DATA["Data Layer — 18 Source CSVs"]
+        CSV["6 Reference & Taxonomy files\n4 companies · 10 BFs · 93 processes · 465 activities\n\n12 Company Scoring files\nBF · Process · Activity grain × 4 companies"]
     end
 
-    subgraph APP["Application — Single HTML File"]
-        V1["Viz 1 · State of AI Scorecard\nRanked leaderboard · stacked bars"]
-        V2["Viz 2 · Use of AI Scorecard\nRanked leaderboard · stacked bars"]
-        V3["Viz 3 · BF × State of AI\nSpectrum grid · 10 BFs × 4 companies"]
-        V4["Viz 4 · Process × Use of AI\nSpectrum grid · aligned BF rows"]
+    subgraph OFFLINE["Offline Aggregation — Build Step"]
+        BUILD["Pre-compute all 4 dashboard metrics\n3× GROUP BY COUNT + 1× direct BF lookup per company\nResults embedded as hardcoded JS arrays — no runtime reads"]
     end
 
-    subgraph AWS["AWS"]
-        S3["S3\nStatic website hosting\nap-south-1"]
-        CF["CloudFront\nGlobal CDN · HTTPS"]
+    subgraph APP["Application — state_of_ai_scorecard.html · Single File · Zero Dependencies"]
+        V1["Viz 1 · State of AI Scorecard\n93 processes × 4 companies · stacked bar leaderboard"]
+        V2["Viz 2 · Use of AI Scorecard\n465 activities × 4 companies · stacked bar leaderboard"]
+        V3["Viz 3 · BF × State of AI\n10 BFs × 4 companies · spectrum grid"]
+        V4["Viz 4 · Process × Use of AI\n93 processes · fixed 30px BF rows · spectrum grid"]
     end
 
-    subgraph DEV["Local Dev"]
-        PY["Python http.server\nPort 7654"]
+    subgraph AWS["Production — AWS"]
+        S3["Amazon S3\nfmcg-ai-benchmarking-dashboard · ap-south-1"]
+        CF["Amazon CloudFront · E3EF4S9G53A1LL\nGlobal CDN · HTTPS · redirect-to-https\nd2hzpx71woh3es.cloudfront.net"]
     end
 
-    CSV -->|"embedded in JS"| APP
-    PY -->|"serves"| APP
-    APP -->|"aws s3 sync"| S3
+    USERS(["CXO / Strategy Teams\nAny browser · No login · No backend"])
+
+    CSV -->|"offline pre-process"| BUILD
+    BUILD --> V1
+    BUILD --> V2
+    BUILD --> V3
+    BUILD --> V4
+    APP -->|"aws s3 sync + cloudfront invalidation"| S3
     S3 --> CF
-    CF -->|"HTTPS"| USERS["CXO / Strategy Teams\nAny browser · No login"]
+    CF -->|"HTTPS · global edge"| USERS
 ```
 
 ## Components
