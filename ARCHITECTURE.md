@@ -54,7 +54,7 @@ flowchart LR
 
 ## Data Model
 
-The dashboard renders four GROUP BY COUNT aggregations over 18 CSV source files. If you understand the data, the visuals follow naturally — Viz 1 and 2 are stacked bars whose widths come from tier counts; Viz 3 and 4 are spectrum grids whose cells come from per-BF lookups and process groupings. This section documents the schema, relationships, and exact aggregation pipeline so that updating the dashboard with new data requires no reverse-engineering of the HTML.
+The dashboard computes four aggregations over 18 CSV source files: three GROUP BY COUNT operations (Viz 1, 2, 4) and one direct per-row lookup (Viz 3 reads BF-level State of AI tier directly from the BF scoring file — no counting). If you understand the data, the visuals follow naturally: Viz 1 and 2 are stacked bars whose widths come from tier counts; Viz 3 is a grid of 40 direct BF lookups (10 BFs × 4 companies); Viz 4 is a grid populated by BF-grouped process counts. This section documents the schema, relationships, and exact aggregation pipeline so that updating the dashboard with new data requires no reverse-engineering of the HTML.
 
 ### Data Flow — CSV to Dashboard
 
@@ -91,6 +91,8 @@ flowchart TD
     CPR -->|"93 rows · JOIN PROC for BF\nGROUP BY BF + UseOfAIId"| V4
     PROC -.->|"join for BF lookup"| V4
 ```
+
+> `FMCGCompaniesMaster`, `StateOfAIMaster`, and `UseOfAIMaster` are FK reference tables. They constrain `{Co}CompanyId`, `{Co}StateOfAIId`, and `{Co}UseOfAIId` values in all 12 Tier 2 scoring files but do not drive any aggregation pipeline directly — their role is to validate and label the integer IDs stored in the scoring files.
 
 ---
 
@@ -137,11 +139,24 @@ Before reading schemas, walk one data point from raw CSV to its rendered positio
 
 **Viz 2**: this activity is counted in Subject Co.'s `noAI = 281`.
 
-> The dashboard is exactly this trace, repeated for every process and every activity, for all 4 companies. The resulting counts are pre-computed and hardcoded into the JS.
+
+**Step 5 — Trace the BF into Viz 3.**
+
+`SubjectCoBusinessFunctionsDetails.csv`, row 1 (`Id=1` maps to `BusinessFunctionId=1` = Marketing & Brand Management):
+
+| Id | SubjectCoCompanyId | SubjectCoStateOfAIId | SubjectCoUseOfAIId | SubjectCoNumberOfEmployees |
+|---|---|---|---|---|
+| 1 | 1 (Subject Co.) | 2 (AI Adoption) | 1 (AI Assisted) | 950 |
+
+**Viz 3**: `SubjectCoStateOfAIId = 2` (AI Adoption) → Marketing & Brand Management chip appears in the AI Adoption row of Subject Co.'s Viz 3 column. (`SubjectCoUseOfAIId` is present in this file but feeds no viz — see schema note below.)
+
+> The dashboard is exactly this 5-step trace, repeated for every process, every activity, and every BF row, for all 4 companies. The resulting counts are pre-computed and hardcoded into the JS.
 
 ---
 
 ### File Catalogue
+
+> ⚠️ **File names below are anonymised.** Actual files on disk use real company name prefixes, not `SubjectCo`, `FMCGLeader`, `Challenger1`, `Challenger2`. Schema structure and row counts are identical.
 
 | Tier | File | Rows | Grain |
 |---|---|---|---|
@@ -163,6 +178,8 @@ Before reading schemas, walk one data point from raw CSV to its rendered positio
 | Company · Activity | `FMCGLeaderActivitiesProcessesMap.csv` | 465 | FMCG Leader — same structure |
 | Company · Activity | `Challenger1ActivitiesProcessesMap.csv` | 465 | Challenger 1 — same structure |
 | Company · Activity | `Challenger2ActivitiesProcessesMap.csv` | 465 | Challenger 2 — same structure |
+
+**Tier mapping:** Rows labelled Reference and Taxonomy above are **Tier 1** (6 files, never change). Rows labelled Company · BF/Process/Activity above are **Tier 2** (12 files, update per data refresh). These match the Tier 1 / Tier 2 labels in the Data Flow diagram.
 
 ---
 
@@ -220,6 +237,8 @@ Before reading schemas, walk one data point from raw CSV to its rendered positio
 
 > ⚠️ **IDs are not ordinal.** `Id=3` is the most advanced tier, not the third. Correct advancement sequence: **3 → 1 → 2 → 4**. Never sort or compare these IDs numerically — always resolve to the label first.
 
+> ⚠️ **FK naming:** Scoring files reference this table via `{Co}StateOfAIId` — the `Component` suffix from the PK name `StateOfAIComponentId` is dropped. The integer value is the same; only the column name differs.
+
 ---
 
 **`UseOfAIMaster.csv`** — 4 rows
@@ -237,6 +256,8 @@ Before reading schemas, walk one data point from raw CSV to its rendered positio
 | 4 | No AI use at all | 4th — least advanced |
 
 > ⚠️ **Same non-ordinal pattern.** `Id=3` is the most advanced. Correct advancement sequence: **3 → 2 → 1 → 4**. This directly determines the column order of the `bfCounts` inner array in Viz 4 — the columns run `[Id=3, Id=2, Id=1, Id=4]`, not `[Id=1, Id=2, Id=3, Id=4]`. Getting this wrong silently swaps AI Enabled and AI Assisted rows in Viz 4.
+
+> ⚠️ **FK naming:** Scoring files reference this table via `{Co}UseOfAIId` — the `Component` suffix from the PK name `UseOfAIComponentId` is dropped. The integer value is the same; only the column name differs.
 
 ---
 
@@ -289,6 +310,8 @@ Column prefix varies per company: `SubjectCo`, `FMCGLeader`, `Challenger1`, `Cha
 | `{Co}StateOfAIId` | INT | FK → `StateOfAIMaster.StateOfAIComponentId` — BF-level State of AI |
 | `{Co}UseOfAIId` | INT | FK → `UseOfAIMaster.UseOfAIComponentId` — BF-level Use of AI |
 | `{Co}NumberOfEmployees` | INT | Headcount in this BF for this company |
+
+> **`{Co}UseOfAIId` is collected but not visualised.** None of the four dashboard vizs reads this column. Viz 3 uses `{Co}StateOfAIId` from this file; Viz 4 derives BF-level Use of AI by aggregating process-level scores from `{Co}ProcessBusinessFunctionMap.csv`. The BF-level Use of AI is an independently assessed holistic classification that exists in the dataset but has no corresponding visualisation in this version of the dashboard.
 
 Headcount by BF × company. Column headers abbreviate BF names; column sums must equal `TotalNumberOfEmployees` in `FMCGCompaniesMaster`:
 
@@ -347,15 +370,52 @@ erDiagram
     UseOfAIMaster ||--o{ Co_Process_Scores : "Use of AI tier"
     UseOfAIMaster ||--o{ Co_Activity_Scores : "Use of AI tier"
 
-    BusinessFunctionMaster { int BusinessFunctionId PK; string BusinessFunctionName }
-    ProcessBusinessFunctionMap { int ProcessId PK; string ProcessName; int BusinessFunctionId FK }
-    ActivitiesProcessesMap { int ActivityId PK; string ActivityName; int ProcessId FK; int BusinessFunctionId FK }
-    StateOfAIMaster { int StateOfAIComponentId PK; string StateOfAIComponentName }
-    UseOfAIMaster { int UseOfAIComponentId PK; string UseOfAIComponentName }
-    FMCGCompaniesMaster { int CompanyId PK; string CompanyName; int TotalNumberOfEmployees }
-    Co_BF_Scores { int Id FK; int CompanyId FK; int StateOfAIId FK; int UseOfAIId FK; int NumberOfEmployees }
-    Co_Process_Scores { int Id FK; int CompanyId FK; int StateOfAIId FK; int UseOfAIId FK }
-    Co_Activity_Scores { int Id FK; int CompanyId FK; int UseOfAIId FK }
+    BusinessFunctionMaster {
+        int BusinessFunctionId PK
+        string BusinessFunctionName
+    }
+    ProcessBusinessFunctionMap {
+        int ProcessId PK
+        string ProcessName
+        int BusinessFunctionId FK
+    }
+    ActivitiesProcessesMap {
+        int ActivityId PK
+        string ActivityName
+        int ProcessId FK
+        int BusinessFunctionId FK
+    }
+    StateOfAIMaster {
+        int StateOfAIComponentId PK
+        string StateOfAIComponentName
+    }
+    UseOfAIMaster {
+        int UseOfAIComponentId PK
+        string UseOfAIComponentName
+    }
+    FMCGCompaniesMaster {
+        int CompanyId PK
+        string CompanyName
+        int TotalNumberOfEmployees
+    }
+    Co_BF_Scores {
+        int Id FK
+        int CompanyId FK
+        int StateOfAIId FK
+        int UseOfAIId FK
+        int NumberOfEmployees
+    }
+    Co_Process_Scores {
+        int Id FK
+        int CompanyId FK
+        int StateOfAIId FK
+        int UseOfAIId FK
+    }
+    Co_Activity_Scores {
+        int Id FK
+        int CompanyId FK
+        int UseOfAIId FK
+    }
 ```
 
 `Co_BF_Scores`, `Co_Process_Scores`, `Co_Activity_Scores` each represent 4 physical files (one per company). `Id` is an implicit FK — row `n` maps to `BusinessFunctionId` / `ProcessId` / `ActivityId` = `n` in the corresponding base table.
@@ -475,8 +535,6 @@ Index 0 = BF 1 (Marketing) … index 9 = BF 10 (Corporate Affairs). Each integer
 **What it produces:** For each company, for each of the 10 BFs, a count of processes at each Use of AI tier — a 10×4 matrix per company.
 
 ```python
-import collections
-
 proc_bf_map = pd.read_csv(f"{DATA}ProcessBusinessFunctionMap.csv", encoding="utf-8")
 proc_to_bf = dict(zip(proc_bf_map.ProcessId, proc_bf_map.BusinessFunctionId))
 
@@ -541,13 +599,32 @@ The JS does not validate this. If BF 9 (Manufacturing) has 10 processes for one 
 **4 · The implicit FK depends on base table row order being stable.**
 If you insert a new process between existing rows in `ProcessBusinessFunctionMap.csv`, every company scoring file's row-to-process mapping shifts below the insertion point. Always **append** new processes or activities at the end of their respective base files, and regenerate all 12 company scoring files in sync.
 
+**5 · Viz 3 and Viz 4 source BF-level data from different files.**
+Viz 3 reads `{Co}StateOfAIId` directly from `{Co}BusinessFunctionsDetails.csv` — a holistic BF-level classification. Viz 4 aggregates `{Co}UseOfAIId` from `{Co}ProcessBusinessFunctionMap.csv` — a process-level score rolled up by BF. These are independently assessed. A BF classified as AI Adoption in Viz 3 can simultaneously have the majority of its processes at AI Enabled in Viz 4. Do not assume the BF tier in Viz 3 is consistent with or derivable from the process distribution in Viz 4.
+
 ---
 
 ### Data Quality
 
-All 18 source files are confirmed clean: 0 duplicate PKs, 0 FK orphans, 0 missing values. No validation code is needed for the current dataset.
+All 18 source files are confirmed clean: 0 duplicate PKs, 0 FK orphans, 0 missing values.
 
-**UTF-8 encoding:** `Challenger 1` contains a right single quotation mark (`'`, U+2019) and `é` (U+00E9). `Challenger 2` contains `é`. Read all CSVs with `pd.read_csv(..., encoding='utf-8')` or `encoding='utf-8-sig'` if a BOM is present. Default system encoding will either raise an error or silently replace the characters with `?`.
+**A validation script is strongly recommended** before embedding updated data into the JS — the implicit FK pattern means row-order corruption produces wrong output with no error. Minimum checks:
+
+```python
+def validate_company_scoring_file(path, expected_rows, company_id, use_col, state_col=None):
+    df = pd.read_csv(path, encoding="utf-8")
+    assert len(df) == expected_rows,         f"{path}: expected {expected_rows} rows, got {len(df)}"
+    assert df["Id"].is_unique,               f"{path}: duplicate Id values"
+    assert df["Id"].tolist() == list(range(1, expected_rows + 1)), f"{path}: Id sequence broken"
+    co_col = [c for c in df.columns if "CompanyId" in c][0]
+    assert df[co_col].nunique() == 1,        f"{path}: multiple CompanyId values — file may be mixed"
+    assert df[co_col].iloc[0] == company_id, f"{path}: wrong CompanyId"
+    assert df[use_col].isin([1,2,3,4]).all(),f"{path}: UseOfAIId out of range"
+    if state_col:
+        assert df[state_col].isin([1,2,3,4]).all(), f"{path}: StateOfAIId out of range"
+```
+
+**UTF-8 encoding:** Two company names contain non-ASCII characters. Read all CSVs with `pd.read_csv(..., encoding='utf-8')`. Default system encoding will either raise an error or silently corrupt these names.
 
 **Pre-sort requirement:** Company arrays for Viz 1 and Viz 2 must be sorted by their ranking metric descending before embedding (`aiApp` for Viz 1, `aiAssist` for Viz 2). The JS derives rank from array index — it does not sort at render time.
 
